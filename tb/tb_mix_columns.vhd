@@ -8,6 +8,7 @@ end tb_mix_columns;
 architecture test of tb_mix_columns is
 	component mix_columns is
 		port (
+			ed: in std_logic;
 			data_in: in std_logic_vector(127 downto 0);
 			data_out: out std_logic_vector(127 downto 0)
 		);
@@ -18,6 +19,7 @@ architecture test of tb_mix_columns is
 begin
 	dut: mix_columns
 		port map (
+			ed => '1',
 			data_in => data_in,
 			data_out => data_out
 		);
