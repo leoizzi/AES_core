@@ -9,6 +9,8 @@ entity datapath is
 		start: in std_logic;
 	    end_block: out std_logic;
 
+	    ed: in std_logic;
+
 		data_in: in std_logic_vector(127 downto 0);
 		key: in std_logic_vector(127 downto 0);
 		data_out: out std_logic_vector(127 downto 0)
@@ -90,6 +92,7 @@ architecture structural of datapath is
 
 	component mix_columns is
 		port (
+			ed: in std_logic; -- 1 for encryption, 0 for decryption
 			data_in: in std_logic_vector(127 downto 0);
 			data_out: out std_logic_vector(127 downto 0)
 		);
@@ -261,6 +264,7 @@ begin
 
 	mc: mix_columns
 		port map (
+			ed => ed,
 			data_in => shift_rows_data_out,
 			data_out => mix_column_out
 		);
