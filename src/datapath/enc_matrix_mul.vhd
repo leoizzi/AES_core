@@ -1,14 +1,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity matrix_mul is
+entity enc_matrix_mul is
 	port (
 		col_in: in std_logic_vector(31 downto 0);
 		col_out: out std_logic_vector(31 downto 0)
 	);
-end matrix_mul;
+end enc_matrix_mul;
 
-architecture behavioral of matrix_mul is
+architecture behavioral of enc_matrix_mul is
 	constant divisor : std_logic_vector(7 downto 0) := X"1B";
 
 	signal pp0, pp1, pp2, pp3: std_logic_vector(15 downto 0);
