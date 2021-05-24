@@ -6,6 +6,7 @@ entity synthesis_unit is
 		clk: in std_logic;
 		rst: in std_logic;
 		start: in std_logic;
+		ed: in std_logic;
 		end_block0: out std_logic;
 		end_block1: out std_logic;
 		end_block2: out std_logic;
@@ -23,6 +24,8 @@ architecture structural of synthesis_unit is
 			
 			start: in std_logic;
 		    end_block: out std_logic;
+			
+			ed: in std_logic;
 
 			data_in: in std_logic_vector(127 downto 0);
 			key: in std_logic_vector(127 downto 0);
@@ -48,6 +51,8 @@ begin
 			start => start,
 			end_block => end_block0,
 
+			ed => ed,
+
 			data_in => din,
 			key => key,
 			data_out => tmp_out0
@@ -60,6 +65,8 @@ begin
 
 			start => start,
 			end_block => end_block1,
+
+			ed => ed,
 
 			data_in => din,
 			key => key,
@@ -74,6 +81,8 @@ begin
 			start => start,
 			end_block => end_block2,
 
+			ed => ed,
+
 			data_in => din,
 			key => key,
 			data_out => tmp_out2
@@ -86,6 +95,8 @@ begin
 
 			start => start,
 			end_block => end_block3,
+
+			ed => ed,
 
 			data_in => din,
 			key => key,
