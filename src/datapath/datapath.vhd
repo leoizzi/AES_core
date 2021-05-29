@@ -49,6 +49,12 @@ architecture structural of datapath is
 	    );
 	end component lut_rom;
 	
+	component lut_rom_td is
+        port (
+            Address: in  std_logic_vector(7 downto 0); 
+            Q: out  std_logic_vector(7 downto 0));
+    end component;
+	
 	component lut_rom_reg is
 		port (
 			Address: in  std_logic_vector(7 downto 0); 
@@ -59,7 +65,27 @@ architecture structural of datapath is
 		);
 	end component lut_rom_reg;
 	
-	
+	--SubBytesLUT anticipates the ROM output by 1 cc. 
+	component AES_subBytes_LUT is
+      Port (--FSM data.
+            rst: in std_logic;
+            clk: in std_logic;
+            start: in std_logic;
+            end_block: out std_logic;
+            en : out std_logic_vector(3 downto 0);
+            --Entity input/output.
+            data_in : in std_logic_vector(127 downto 0);
+            data_out: out std_logic_vector(31 downto 0);
+            --Lookup memory interface.
+            look_0_addr: out std_logic_vector(7 downto 0);
+            look_0_data: in std_logic_vector(7 downto 0);
+            look_1_addr: out std_logic_vector(7 downto 0);
+            look_1_data: in std_logic_vector(7 downto 0);
+            look_2_addr: out std_logic_vector(7 downto 0);
+            look_2_data: in std_logic_vector(7 downto 0);
+            look_3_addr: out std_logic_vector(7 downto 0);
+            look_3_data: in std_logic_vector(7 downto 0));
+    end component AES_subBytes_LUT;
 
 	component AES_subBytes is
 		Port (--FSM data.
@@ -83,12 +109,11 @@ architecture structural of datapath is
 	    );
 	end component AES_subBytes;
 
-	component shiftRows is
-		 Port (
-		 	data_in : in std_logic_vector(127 downto 0);
-        	data_out: out std_logic_vector(127 downto 0)
-       	);
-	end component shiftRows;
+	component shift_rows is
+        Port (en_dec: in std_logic;
+            data_in : in std_logic_vector(127 downto 0);
+            data_out: out std_logic_vector(127 downto 0));
+    end component shift_rows;
 
 	component mix_columns is
 		port (
@@ -107,13 +132,25 @@ architecture structural of datapath is
 	end component add_round_keys;
 	
 	signal sub_bytes_en: std_logic_vector(3 downto 0);
-	signal look_0_addr, look_0_data, look_1_addr, look_1_data, look_2_addr, look_2_data, look_3_addr, look_3_data: std_logic_vector(7 downto 0);
+	signal look_0_addr, look_1_addr, look_2_addr, look_3_addr: std_logic_vector(7 downto 0);
+	signal look_0_data_en, look_1_data_en, look_2_data_en, look_3_data_en: std_logic_vector(7 downto 0);
+	signal look_0_data_dec, look_1_data_dec, look_2_data_dec, look_3_data_dec: std_logic_vector(7 downto 0);
+	signal look_0_data, look_1_data, look_2_data, look_3_data: std_logic_vector(7 downto 0);
 	signal sub_bytes_data_out: std_logic_vector(31 downto 0);
 	signal sub_bytes_data_in: std_logic_vector(127 downto 0);
 	signal shift_rows_data_in, shift_rows_data_out: std_logic_vector(127 downto 0);
 	signal mix_column_in, mix_column_out: std_logic_vector(127 downto 0);
 	signal add_round_key_in, add_round_key_out: std_logic_vector(127 downto 0);
 begin
+    --MUX for subBytes.
+    look_0_data <= look_0_data_en when ed = '0' else
+                   look_0_data_dec;
+    look_1_data <= look_1_data_en when ed = '0' else
+                   look_1_data_dec;
+    look_2_data <= look_2_data_en when ed = '0' else
+                   look_2_data_dec;
+    look_3_data <= look_3_data_en when ed = '0' else
+                   look_3_data_dec;
 	ff0: reg_en
 		generic map (
 			N => 128
@@ -165,28 +202,52 @@ begin
 	enc_rom_0: lut_rom
 		port map (
 			Address => look_0_addr,
-			Q => look_0_data
+			Q => look_0_data_en
 		);
 		
 	enc_rom_1: lut_rom
 		port map (
 			Address => look_1_addr,
-			Q => look_1_data
+			Q => look_1_data_en
 		);
 		
 	enc_rom_2: lut_rom
 		port map (
 			address => look_2_addr,
-			q => look_2_data
+			q => look_2_data_en
 		);
 		
 	enc_rom_3: lut_rom
 		port map (
 			Address => look_3_addr,
-			Q => look_3_data
+			Q => look_3_data_en
 		);
-
-	sb: AES_subBytes
+		
+    dec_rom_0: lut_rom_td
+		port map (
+			Address => look_0_addr,
+			Q => look_0_data_dec
+		);
+		
+	dec_rom_1: lut_rom_td
+		port map (
+			Address => look_1_addr,
+			Q => look_1_data_dec
+		);
+		
+	dec_rom_2: lut_rom_td
+		port map (
+			address => look_2_addr,
+			q => look_2_data_dec
+		);
+		
+	dec_rom_3: lut_rom_td
+		port map (
+			Address => look_3_addr,
+			Q => look_3_data_dec
+		);
+		
+	sb: AES_subBytes_LUT
 		port map (
 			rst => rst,
 	        clk => clk,
@@ -256,8 +317,9 @@ begin
 			q => shift_rows_data_in(127 downto 96)
 		);
 
-	sr: shiftRows
+	sr: shift_rows
 		port map (
+		    en_dec => ed,
 			data_in => shift_rows_data_in,
 			data_out => shift_rows_data_out
 		);
