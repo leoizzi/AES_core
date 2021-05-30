@@ -10,6 +10,8 @@ entity datapath is
 	    end_block: out std_logic;
 
 	    ed: in std_logic;
+	    first_round: in std_logic;
+	    last_round: in std_logic;
 
 		data_in: in std_logic_vector(127 downto 0);
 		key: in std_logic_vector(127 downto 0);
@@ -141,6 +143,8 @@ architecture structural of datapath is
 	signal shift_rows_data_in, shift_rows_data_out: std_logic_vector(127 downto 0);
 	signal mix_column_in, mix_column_out: std_logic_vector(127 downto 0);
 	signal add_round_key_in, add_round_key_out: std_logic_vector(127 downto 0);
+	signal ff0_out, ff1_out, ff2_out: std_logic_vector(127 downto 0);
+	signal add_rk_in_ctrl: std_logic_vector(2 downto 0);
 begin
     --MUX for subBytes.
     look_0_data <= look_0_data_en when ed = '1' else
@@ -151,53 +155,6 @@ begin
                    look_2_data_dec;
     look_3_data <= look_3_data_en when ed = '1' else
                    look_3_data_dec;
-	ff0: reg_en
-		generic map (
-			N => 128
-		)
-		port map (
-			clk => clk,
-			rst => rst,
-			en => '1',
-			d => data_in,
-			q => sub_bytes_data_in
-		);
-
-	--enc_rom_0: lut_rom_reg --enc_sub_bytes_rom
-		--port map (
-			--Address => look_0_addr,
-	        --OutClock => clk,
-	        --OutClockEn => '1', 
-	        --Reset => rst,
-	        --Q => look_0_data
-		--);
-
-	--enc_rom_1: lut_rom_reg --enc_sub_bytes_rom
-		--port map (
-			--Address => look_1_addr,
-	        --OutClock => clk,
-	        --OutClockEn => '1', 
-	        --Reset => rst,
-	        --Q => look_1_data
-		--);
-
-	--enc_rom_2: lut_rom_reg --enc_sub_bytes_rom
-		--port map (
-			--Address => look_2_addr,
-	        --OutClock => clk,
-	        --OutClockEn => '1', 
-	        --Reset => rst,
-	        --Q => look_2_data
-		--);
-
-	--enc_rom_3: lut_rom_reg --enc_sub_bytes_rom
-		--port map (
-			--Address => look_3_addr,
-	        --OutClock => clk,
-	        --OutClockEn => '1', 
-	        --Reset => rst,
-	        --Q => look_3_data
-		--);
 		
 	enc_rom_0: lut_rom
 		port map (
@@ -246,6 +203,10 @@ begin
 			Address => look_3_addr,
 			Q => look_3_data_dec
 		);
+
+	with ed select sub_bytes_data_in <= 
+		ff2_out when '1',
+		shift_rows_data_out when others;
 		
 	sb: AES_subBytes_LUT
 		port map (
@@ -268,7 +229,7 @@ begin
 	        look_3_data => look_3_data
 		);
 
-	ff1_0: reg_en
+	ff0_0: reg_en
 		generic map (
 			N => 32
 		)
@@ -277,10 +238,10 @@ begin
 			rst => rst,
 			en => sub_bytes_en(0),
 			d => sub_bytes_data_out,
-			q => shift_rows_data_in(31 downto 0)
+			q => ff0_out(31 downto 0)
 		);
 
-	ff1_1: reg_en
+	ff0_1: reg_en
 		generic map (
 			N => 32
 		)
@@ -289,11 +250,11 @@ begin
 			rst => rst,
 			en => sub_bytes_en(1),
 			d => sub_bytes_data_out,
-			q => shift_rows_data_in(63 downto 32)
+			q => ff0_out(63 downto 32)
 		);
 
 
-	ff1_2: reg_en
+	ff0_2: reg_en
 		generic map (
 			N => 32
 		)
@@ -302,10 +263,10 @@ begin
 			rst => rst,
 			en => sub_bytes_en(2),
 			d => sub_bytes_data_out,
-			q => shift_rows_data_in(95 downto 64)
+			q => ff0_out(95 downto 64)
 		);
 
-	ff1_3: reg_en
+	ff0_3: reg_en
 		generic map (
 			N => 32
 		)
@@ -314,8 +275,12 @@ begin
 			rst => rst,
 			en => sub_bytes_en(3),
 			d => sub_bytes_data_out,
-			q => shift_rows_data_in(127 downto 96)
+			q => ff0_out(127 downto 96)
 		);
+
+	with ed select shift_rows_data_in <= 
+		ff0_out when '1',
+		ff2_out when others;
 
 	sr: shift_rows
 		port map (
@@ -324,11 +289,42 @@ begin
 			data_out => shift_rows_data_out
 		);
 
+	with ed select mix_column_in <= 
+		shift_rows_data_out when '1',
+		ff0_out when others;
+
 	mc: mix_columns
 		port map (
 			ed => ed,
 			data_in => shift_rows_data_out,
 			data_out => mix_column_out
+		);
+
+	ff1: reg_en
+		generic map (
+			N => 128
+		)
+		port map (
+			clk => clk,
+			rst => rst,
+			en => '1',
+			d => mix_column_out,
+			q => ff1_out
+		);
+
+	add_rk_in_ctrl <= ed&first_round&last_round;
+	with add_rk_in_ctrl select add_round_key_in <= 
+		ff1_out when "000",
+		ff0_out when "001",
+		ff1_out when "100",
+		shift_rows_data_out when "101",
+		data_in when others;
+
+	ark: add_round_keys
+		port map (
+			data_in => add_round_key_in,
+			key => key,
+			data_out => add_round_key_out
 		);
 
 	ff2: reg_en
@@ -339,27 +335,8 @@ begin
 			clk => clk,
 			rst => rst,
 			en => '1',
-			d => mix_column_out,
-			q => add_round_key_in
-		);
-
-	ark: add_round_keys
-		port map (
-			data_in => add_round_key_in,
-			key => key,
-			data_out => add_round_key_out
-		);
-
-	ff3: reg_en
-		generic map (
-			N => 128
-		)
-		port map (
-			clk => clk,
-			rst => rst,
-			en => '1',
 			d => add_round_key_out,
-			q => data_out
+			q => ff2_out
 		);
 
 end structural;
