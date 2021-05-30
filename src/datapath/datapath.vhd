@@ -143,13 +143,13 @@ architecture structural of datapath is
 	signal add_round_key_in, add_round_key_out: std_logic_vector(127 downto 0);
 begin
     --MUX for subBytes.
-    look_0_data <= look_0_data_en when ed = '0' else
+    look_0_data <= look_0_data_en when ed = '1' else
                    look_0_data_dec;
-    look_1_data <= look_1_data_en when ed = '0' else
+    look_1_data <= look_1_data_en when ed = '1' else
                    look_1_data_dec;
-    look_2_data <= look_2_data_en when ed = '0' else
+    look_2_data <= look_2_data_en when ed = '1' else
                    look_2_data_dec;
-    look_3_data <= look_3_data_en when ed = '0' else
+    look_3_data <= look_3_data_en when ed = '1' else
                    look_3_data_dec;
 	ff0: reg_en
 		generic map (

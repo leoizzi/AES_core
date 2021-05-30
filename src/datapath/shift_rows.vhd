@@ -55,6 +55,6 @@ encription_shift_row: EncShiftRows port map (data_in, out_shift_en);
 decription_shift_row: DecShiftRows port map (data_in, out_shift_dec);
 
 
-data_out <= out_shift_en when en_dec = '0' else
+data_out <= out_shift_en when en_dec = '1' else
             out_shift_dec;
 end Structural;
