@@ -1,0 +1,5 @@
+aes_core.xpr
+aes_core.sim/*
+aes_core.ip_user_files/*
+aes_core.hw/*
+aes_core.cache/*
