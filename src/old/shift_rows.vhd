@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date: 27.05.2021 10:55:26
+-- Create Date: 29.05.2021 10:18:09
 -- Design Name: 
--- Module Name: DecShiftRows - Dataflow
+-- Module Name: shift_rows - Structural
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -31,21 +31,30 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity DecShiftRows is
+entity shift_rows is
+  Port (en_dec: in std_logic;
+        data_in : in std_logic_vector(127 downto 0);
+        data_out: out std_logic_vector(127 downto 0));
+end shift_rows;
+
+architecture Structural of shift_rows is
+
+component EncShiftRows is
   Port (data_in : in std_logic_vector(127 downto 0);
         data_out: out std_logic_vector(127 downto 0));
-end DecShiftRows;
+end component;
 
-architecture Dataflow of DecShiftRows is
+component DecShiftRows is
+  Port (data_in : in std_logic_vector(127 downto 0);
+        data_out: out std_logic_vector(127 downto 0));
+end component;
 
+signal out_shift_en, out_shift_dec: std_logic_vector(127 downto 0);
 begin
---Row 0.
-data_out (31 downto 0) <= data_in(31 downto 0);
---Row 1.
-data_out(63 downto 32) <= data_in(55 downto 32)&data_in(63 downto 56);
---Row 2.
-data_out(95 downto 64) <= data_in(79 downto 64)&data_in(95 downto 80);
---Row 3.
-data_out(127 downto 96) <= data_in(103 downto 96)&data_in(127 downto 104);
+encription_shift_row: EncShiftRows port map (data_in, out_shift_en);
+decription_shift_row: DecShiftRows port map (data_in, out_shift_dec);
 
-end Dataflow;
+
+data_out <= out_shift_en when en_dec = '1' else
+            out_shift_dec;
+end Structural;
