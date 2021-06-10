@@ -1,0 +1,8 @@
+se3_core.c:42:6:device_init	8	static
+se3_core.c:50:6:device_loop	8	static
+se3_core.c:62:17:invalid_cmd_handler	24	static
+se3_core.c:67:17:se3_exec	40	static
+se3_core.c:141:6:se3_cmd_execute	96	static
+se3_core.c:199:10:echo	24	static
+se3_core.c:206:10:factory_init	56	static
+se3_core.c:228:10:bootmode_reset	24	static
