@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use work.CONSTANTS.all;
 use work.aes_states.all;
 
+-- TODO: change opcode check in KEY_WRITE and KEY_TRANSFER
 entity aes_top_cu is
 	port (
 		clk: in std_logic;
@@ -73,8 +74,10 @@ architecture behavioral of aes_top_cu is
 	constant AES_256_ROUNDS : std_logic_vector(3 downto 0) := "1110"; 
 
 	signal curr_state, next_state: std_logic_vector(OPCODE_SIZE-1 downto 0);
-	signal curr_data_reg_en, next_data_reg_en: std_logic_vector(7 downto 0);
+	signal curr_data_reg_en, next_data_reg_en: std_logic_vector(8 downto 0);
 	signal data_reg_out: std_logic_vector(127 downto 0);
+	signal data_reg_sample: std_logic;
+	signal data_reg_sample_vec: std_logic_vector(7 downto 0);
 	signal curr_buf_addr, next_buf_addr: std_logic_vector(2 downto 0);
 	signal buf_addr_en: std_logic;
 	signal curr_ram_addr, next_ram_addr: std_logic_vector(3 downto 0);
@@ -86,6 +89,8 @@ begin
 
 	-- these FFs are used to create a 128 bits word from the Data Buffer's 16 bits data
 	data_comb_reg_loop : for i in 0 to (128/DATA_WIDTH)-1 generate
+	   data_reg_sample_vec(i) <= curr_data_reg_en(i) and data_reg_sample;
+	   
 		data_reg: reg_en
 			generic map (
 				N => DATA_WIDTH
@@ -93,7 +98,7 @@ begin
 			port map (
 				clk => clk,
 				rst => rst,
-				en => curr_data_reg_en(i),
+				en => data_reg_sample_vec(i),
 				d => ipm_data_in,
 				q => data_reg_out(((i+1) * DATA_WIDTH)-1 downto i*DATA_WIDTH)
 			);
@@ -105,7 +110,7 @@ begin
 	-- en_data controls which data_reg must sample from the Data Buffer
 	en_data_reg: reg_en
 		generic map (
-			N => 8
+			N => 9
 		)
 		port map (
 			clk => clk,
@@ -176,6 +181,7 @@ begin
 		core_dec_data_out)
 	begin
 		next_state <= curr_state;
+		next_data_reg_en <= curr_data_reg_en;
 		rst_int <= '0';
 		buf_en <= '0';
 		buf_rw <= '0';
@@ -185,7 +191,6 @@ begin
 		start_enc <= '0';
 		start_dec <= '0';
 		n_rounds <= AES_256_ROUNDS;
-		next_data_reg_en <= (0 => '1', others => '0');
 		ram_we <= '0';
 		ram_addr <= (others => '0');
 		buf_addr_en <= '0';
@@ -193,16 +198,23 @@ begin
 		-- reg_en by default resets to 0, however we cannot use address 0 since it's reserved.
 		-- for this reason we generate the read address by concatenating the offset to "001"
 		buf_addr <= "001"&curr_buf_addr;
+		data_reg_sample <= '0';
+
+		if (int_polling = '1') then
+			err <= '1';
+		end if;
 
 		case(curr_state) is
 			when IDLE => 
-				if (en = '1') then
+				if (en = '1' and int_polling = '0') then
 					next_state <= opcode;
 				end if;
+				next_data_reg_en <= (0 => '1', others => '0');
 				rst_int <= '1';
 
 			when KEY_TRANSFER =>
-				if (curr_data_reg_en(7) = '1') then
+			    data_reg_sample <= '1';
+				if (curr_data_reg_en(8) = '1') then
 					next_state <= KEY_WRITE;
 				end if;
 
@@ -214,10 +226,11 @@ begin
 				if (cpu_write_completed = '1') then
 					buf_addr_en <= '1';
 					buf_en <= '1';
-					next_data_reg_en <= curr_data_reg_en(6 downto 0)&curr_data_reg_en(7);
+					next_data_reg_en <= curr_data_reg_en(7 downto 0)&curr_data_reg_en(8);
 				end if;
 
 			when KEY_WRITE => 
+			    data_reg_sample <= '1';
 				ram_addr <= curr_ram_addr;
 				ram_addr_en <= '1';
 				ram_we <= '1';
@@ -227,7 +240,7 @@ begin
 				if (cpu_write_completed = '1') then
 					buf_addr_en <= '1';
 					buf_en <= '1';
-					next_data_reg_en <= curr_data_reg_en(6 downto 0)&curr_data_reg_en(7);
+					next_data_reg_en <= curr_data_reg_en(7 downto 0)&curr_data_reg_en(8);
 				end if;
 
 				if (opcode(1) /= '1' and en = '1') then
@@ -235,16 +248,18 @@ begin
 					rst_int <= '1';
 				else
 					next_state <= KEY_TRANSFER;
+					next_data_reg_en <= (0 => '1', others => '0');
 				end if;
 
 			when DATA_RX => 
+			    data_reg_sample <= '1';
 				if (cpu_write_completed = '1') then
 					buf_addr_en <= '1';
-					next_data_reg_en <= curr_data_reg_en(6 downto 0)&curr_data_reg_en(7);
+					next_data_reg_en <= curr_data_reg_en(7 downto 0)&curr_data_reg_en(8);
 				end if;
 
 				-- if we sampled all the data wait in IDLE to know which mode must be triggered
-				if (curr_data_reg_en(7) = '1') then
+				if (curr_data_reg_en(8) = '1') then
 					next_state <= IDLE;
 				end if;
 
