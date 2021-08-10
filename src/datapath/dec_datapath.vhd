@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+-- AES decryption datapath
 entity dec_datapath is
 	port (
 		clk: in std_logic;
@@ -8,10 +9,7 @@ entity dec_datapath is
 		
 		start: in std_logic;
 	    end_block: out std_logic;
-
-	    --ed: in std_logic;
 	    first_round: in std_logic;
-	    --last_round: in std_logic;
 
 	    -- enable for the register which is input to the SubBytes step
 	    en_ff1: in std_logic;
@@ -117,7 +115,9 @@ architecture structural of dec_datapath is
 	signal add_rk_in_ctrl: std_logic_vector(1 downto 0);
 	signal ff0_out, ff1_out, ff2_out: std_logic_vector(127 downto 0);
 begin
-
+	
+	-- During the first round, the inverse shift row input comes from the add round key stage,
+	-- otherwise it comes from the inverse mix column
 	with first_round select shift_rows_data_in <= 
 		ff2_out when '0',
 		ff1_out when others;
@@ -127,7 +127,8 @@ begin
 			data_in => shift_rows_data_in,
 			data_out => shift_rows_data_out
 		);
-		
+	
+	-- Inverse sub bytes ROMs	
     dec_rom_0: lut_rom_td
 		port map (
 			Address => look_0_addr,
@@ -206,6 +207,7 @@ begin
 	        look_7_data => look_7_data
 		);
 
+	-- Inverse sub bytes produces 64 bits at the time, so we need 2 64 bits registers to build a whole word
 	ff0_0: reg_en
 		generic map (
 			N => 64
@@ -230,6 +232,8 @@ begin
 			q => ff0_out(127 downto 64)
 		);
 
+	-- the first operation in the standard is an add round key with the plaintext,
+	-- then add round keys takes the inverse sub bytes' output
 	with first_round select add_round_key_in <= 
 		ff0_out when '0',
 		data_in when others;
@@ -271,6 +275,7 @@ begin
 			q => ff2_out
 		);
 
+	-- the plaintext comes from the add round key stage
 	data_out <= ff1_out;
 
 end structural;

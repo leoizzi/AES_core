@@ -1,19 +1,20 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+-- AES encryption datapath
 entity enc_datapath is
 	port (
 		clk: in std_logic;
 		rst: in std_logic;
 		
 		start: in std_logic;
-	    end_block: out std_logic;
+	   end_block: out std_logic;
 
-	    first_round: in std_logic;
-	    last_round: in std_logic;
+	   first_round: in std_logic;
+	   last_round: in std_logic;
 
-	    -- enable for the register which is input to the SubBytes step
-	    en_ff2: in std_logic;
+	   -- enable for the register which is input to the SubBytes step
+	   en_ff2: in std_logic;
 
 		data_in: in std_logic_vector(127 downto 0);
 		key: in std_logic_vector(127 downto 0);
@@ -110,6 +111,7 @@ architecture structural of enc_datapath is
 	signal ff1_out, ff2_out: std_logic_vector(127 downto 0);
 	signal add_rk_in_ctrl: std_logic_vector(1 downto 0);
 begin
+	-- Sub bytes LUTs instantiation
 	enc_rom_0: lut_rom
 		port map (
 			Address => look_0_addr,
@@ -162,31 +164,31 @@ begin
 	sb: AES_subBytes_LUT
 		port map (
 			rst => rst,
-	        clk => clk,
-	        start => start,
-	        end_block => end_block,
-	        en => sub_bytes_en,
-	        --Entity input/output.
-	        data_in => ff2_out,
-	        data_out => sub_bytes_data_out,
-	        --Lookup memory interface.
-	        look_0_addr => look_0_addr,
-	        look_0_data => look_0_data,
-	        look_1_addr => look_1_addr,
-	        look_1_data => look_1_data,
-	        look_2_addr => look_2_addr,
-	        look_2_data => look_2_data,
-	        look_3_addr => look_3_addr,
-	        look_3_data => look_3_data,
-	        
-	        look_4_addr => look_4_addr,
-	        look_4_data => look_4_data,
-	        look_5_addr => look_5_addr,
-	        look_5_data => look_5_data,
-	        look_6_addr => look_6_addr,
-	        look_6_data => look_6_data,
-	        look_7_addr => look_7_addr,
-	        look_7_data => look_7_data
+			clk => clk,
+			start => start,
+			end_block => end_block,
+			en => sub_bytes_en,
+			--Entity input/output.
+			data_in => ff2_out,
+			data_out => sub_bytes_data_out,
+			--Lookup memory interface.
+			look_0_addr => look_0_addr,
+			look_0_data => look_0_data,
+			look_1_addr => look_1_addr,
+			look_1_data => look_1_data,
+			look_2_addr => look_2_addr,
+			look_2_data => look_2_data,
+			look_3_addr => look_3_addr,
+			look_3_data => look_3_data,
+
+			look_4_addr => look_4_addr,
+			look_4_data => look_4_data,
+			look_5_addr => look_5_addr,
+			look_5_data => look_5_data,
+			look_6_addr => look_6_addr,
+			look_6_data => look_6_data,
+			look_7_addr => look_7_addr,
+			look_7_data => look_7_data
 		);
 	  ff0_0: reg_en
 		generic map (
@@ -236,8 +238,13 @@ begin
 			q => ff1_out
 		);
 
+	-- Add round key input depends on which round we're in
 	add_rk_in_ctrl <= last_round&first_round;
 
+	-- "00" -> middle rounds: the input comes from the mix columns stage
+	-- "01" -> first round: the input is the plaintext
+	-- "10" -> last round: the input comes from the shift rows stage
+	-- "11" -> reserved: it should never happen
 	with add_rk_in_ctrl select add_round_key_in <= 
 		ff1_out when "00",
 		data_in when "01",
@@ -263,6 +270,7 @@ begin
 			q => ff2_out
 		);
 
+	-- the cyphertext comes from the add round key stage
 	data_out <= ff2_out;
 
 end structural;

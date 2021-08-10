@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_misc.or_reduce;
 
+-- Inverse matrix multiplication
 entity dec_matrix_mul is
 	port (
 		col_in: in std_logic_vector(31 downto 0);
@@ -10,6 +11,10 @@ entity dec_matrix_mul is
 end dec_matrix_mul;
 
 architecture behavioral of dec_matrix_mul is
+	-- the inverse matrix multiplication works with multipliers that
+	-- may require more than 9 bits for representing the full result.
+	-- Hence, this component is used to apply the Galois field corrective
+	-- factor multiple times
 	component xtime is
 		port(
 			data_in: in std_logic_vector(7 downto 0);

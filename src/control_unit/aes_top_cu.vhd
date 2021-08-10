@@ -3,7 +3,8 @@ use ieee.std_logic_1164.all;
 use work.CONSTANTS.all;
 use work.aes_states.all;
 
--- TODO: change opcode check in KEY_WRITE and KEY_TRANSFER
+-- AES top CU which interfaces with the encryption and decryption CUs,
+-- as well as the IP manager
 entity aes_top_cu is
 	port (
 		clk: in std_logic;

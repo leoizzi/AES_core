@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+-- Apply the Galois field multiplication corrective factor if needed
 entity xtime is
 	port(
 		data_in: in std_logic_vector(7 downto 0);

@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+-- AES encryption CU
 entity aes_cu_enc is
 	port (
 		clk: in std_logic;
@@ -66,6 +67,7 @@ architecture behavioral of aes_cu_enc is
 begin
 	int_rst <= rst or rst_regs;
 
+	-- register used to index the keys and to count the rounds number 
 	rounds_reg: reg_en
 		generic map (
 			N => 4
@@ -92,6 +94,7 @@ begin
 
 	next_n_rounds <= n_rounds;
 
+	-- sample the number of rounds to execute
 	n_rounds_reg: reg_en
 		generic map (
 			N => 4
@@ -136,6 +139,7 @@ begin
 					next_state <= FIRST_ROUND0;
 				end if;
 
+			-- add round key with the plaintext
 			when FIRST_ROUND0 => 
 				first_round <= '1';
 				en_ff2 <= '1';
@@ -143,16 +147,20 @@ begin
 				en_rounds <= '1';
 				next_state <= MIDDLE_ROUND0;
 
+			-- sub bytes
 			when MIDDLE_ROUND0 => 
+				-- sub bytes is multi-cycle, wait for its end
 				if (end_block = '1') then
 					next_state <= MIDDLE_ROUND1;
 				else
 					start_block <= '1';
 				end if;
 
+			-- shift rows + mix columns
 			when MIDDLE_ROUND1 => 
 				next_state <= MIDDLE_ROUND2;
 
+			-- add round key
 			when MIDDLE_ROUND2 => 
 				en_rounds <= '1';
 				if (curr_round = curr_n_rounds) then
@@ -163,6 +171,7 @@ begin
 
 				en_ff2 <= '1';
 
+			-- last sub bytes
 			when LAST_ROUND0 => 
 				if (end_block = '1') then
 					next_state <= LAST_ROUND1;
@@ -172,11 +181,13 @@ begin
 
 				last_round <= '1';
 
+			-- last shift rows + add round key
 			when LAST_ROUND1 => 
 				en_ff2 <= '1';
 				next_state <= FINISH;
 				last_round <= '1';
 
+			-- tell the top CU we're done
 			when FINISH => 
 				done <= '1';
 				next_state <= IDLE;

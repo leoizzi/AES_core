@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+-- Inverse mix columns stage
 entity dec_mix_columns is
 	port (
 		data_in: in std_logic_vector(127 downto 0);
@@ -21,6 +22,7 @@ architecture structural of dec_mix_columns is
 	signal dec_res: std_logic_vector(127 downto 0);
 
 begin
+	-- switch data_in from row to column representation
 	col0 <= data_in(103 downto 96)&data_in(71 downto 64)&data_in(39 downto 32)&data_in(7 downto 0);
 	col1 <= data_in(111 downto 104)&data_in(79 downto 72)&data_in(47 downto 40)&data_in(15 downto 8);
 	col2 <= data_in(119 downto 112)&data_in(87 downto 80)&data_in(55 downto 48)&data_in(23 downto 16);
@@ -50,6 +52,7 @@ begin
 			col_out => dec_res3
 		);
 
+	-- switch the output back to row representation
 	dec_res(31 downto 0) <= dec_res3(7 downto 0)&dec_res2(7 downto 0)&dec_res1(7 downto 0)&dec_res0(7 downto 0);
 	dec_res(63 downto 32) <= dec_res3(15 downto 8)&dec_res2(15 downto 8)&dec_res1(15 downto 8)&dec_res0(15 downto 8);
 	dec_res(95 downto 64) <= dec_res3(23 downto 16)&dec_res2(23 downto 16)&dec_res1(23 downto 16)&dec_res0(23 downto 16);
