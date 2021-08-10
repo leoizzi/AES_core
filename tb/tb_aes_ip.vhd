@@ -308,18 +308,208 @@ begin
 		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
 
+
+
 		-- test 1: Decryption AES 256
+		--write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		--write("001000", "000000000000"&AES_256_N_KEYS);
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+
+		---- transfer the keys
+		--for i in 0 to 14 loop
+		--	for j in 0 to 7 loop
+		--		addr := std_logic_vector(to_unsigned(j, 3));
+		--		write("001"&addr, dec_rom_256(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
+		--	end loop;
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- send the plaintext
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	write("001"&addr, cyphertext_256((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", DECRYPTION & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- write the lock
+		--write("000001", X"FFFF");
+
+		--read("000001");
+		--while result = x"FFFF" loop
+		--	read("000001");
+		--end loop;
+
+		---- read the results
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	read("001"&addr);
+		--	assert (result = plaintext((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH)) report "WRONG DECRYPTION" severity FAILURE;
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+
+
+
+		-- test 2: Encryption AES 256
+		--write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		--write("001000", "000000000000"&AES_192_N_KEYS);
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+
+		---- transfer the keys
+		--for i in 0 to 12 loop
+		--	for j in 0 to 7 loop
+		--		addr := std_logic_vector(to_unsigned(j, 3));
+		--		write("001"&addr, enc_rom_192(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
+		--	end loop;
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- send the plaintext
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	write("001"&addr, plaintext((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", ENCRYPTION & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- write the lock
+		--write("000001", X"FFFF");
+
+		--read("000001");
+		--while result = x"FFFF" loop
+		--	read("000001");
+		--end loop;
+
+		---- read the results
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	read("001"&addr);
+		--	assert (result = cyphertext_192((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH)) report "WRONG ENCRYPTION" severity FAILURE;
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+
+
+
+		-- test 3: Decryption AES 256
+		--write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		--write("001000", "000000000000"&AES_192_N_KEYS);
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+
+		---- transfer the keys
+		--for i in 0 to 12 loop
+		--	for j in 0 to 7 loop
+		--		addr := std_logic_vector(to_unsigned(j, 3));
+		--		write("001"&addr, dec_rom_192(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
+		--	end loop;
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- send the plaintext
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	write("001"&addr, cyphertext_192((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", DECRYPTION & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- write the lock
+		--write("000001", X"FFFF");
+
+		--read("000001");
+		--while result = x"FFFF" loop
+		--	read("000001");
+		--end loop;
+
+		---- read the results
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	read("001"&addr);
+		--	assert (result = plaintext((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH)) report "WRONG DECRYPTION" severity FAILURE;
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+
+
+
+		-- test 4: Encryption AES 128
+		--write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		--write("001000", "000000000000"&AES_128_N_KEYS);
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+
+		---- transfer the keys
+		--for i in 0 to 10 loop
+		--	for j in 0 to 7 loop
+		--		addr := std_logic_vector(to_unsigned(j, 3));
+		--		write("001"&addr, enc_rom_128(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
+		--	end loop;
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- send the plaintext
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	write("001"&addr, plaintext((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+		--write("000000", ENCRYPTION & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- write the lock
+		--write("000001", X"FFFF");
+
+		--read("000001");
+		--while result = x"FFFF" loop
+		--	read("000001");
+		--end loop;
+
+		---- read the results
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	read("001"&addr);
+		--	assert (result = cyphertext_128((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH)) report "WRONG ENCRYPTION" severity FAILURE;
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
+
+
+
+		-- test 5: Decryption AES 128
 		write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		write("001000", "000000000000"&AES_256_N_KEYS);
+		write("001000", "000000000000"&AES_128_N_KEYS);
 		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
 		write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
 
 		-- transfer the keys
-		for i in 0 to 14 loop
+		for i in 0 to 10 loop
 			for j in 0 to 7 loop
 				addr := std_logic_vector(to_unsigned(j, 3));
-				write("001"&addr, dec_rom_256(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
+				write("001"&addr, dec_rom_128(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
 			end loop;
 		end loop;
 
@@ -329,7 +519,7 @@ begin
 		-- send the plaintext
 		for i in 0 to 7 loop
 			addr := std_logic_vector(to_unsigned(i, 3));
-			write("001"&addr, cyphertext_256((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
+			write("001"&addr, cyphertext_128((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
 		end loop;
 
 		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
