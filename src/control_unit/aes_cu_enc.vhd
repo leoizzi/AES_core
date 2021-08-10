@@ -140,6 +140,7 @@ begin
 				first_round <= '1';
 				en_ff2 <= '1';
 				en_n_rounds <= '1';
+				en_rounds <= '1';
 				next_state <= MIDDLE_ROUND0;
 
 			when MIDDLE_ROUND0 => 
@@ -151,9 +152,9 @@ begin
 
 			when MIDDLE_ROUND1 => 
 				next_state <= MIDDLE_ROUND2;
-				en_rounds <= '1';
 
 			when MIDDLE_ROUND2 => 
+				en_rounds <= '1';
 				if (curr_round = curr_n_rounds) then
 					next_state <= LAST_ROUND0;
 				else
@@ -165,7 +166,6 @@ begin
 			when LAST_ROUND0 => 
 				if (end_block = '1') then
 					next_state <= LAST_ROUND1;
-					en_rounds <= '1';
 				else
 					start_block <= '1';
 				end if;

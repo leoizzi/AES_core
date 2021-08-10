@@ -46,6 +46,10 @@ architecture test of FPGA_testbench is
 	constant CONF_OPEN_TRANSACTION_ACK      : std_logic_vector(2 downto 0) := "111";
 	constant CONF_CLOSE_TRANSACTION_ACK     : std_logic_vector(2 downto 0) := "110";
 
+	constant AES_128_N_KEYS : std_logic_vector(3 downto 0) := "1011"; 
+	constant AES_192_N_KEYS : std_logic_vector(3 downto 0) := "1101"; 
+	constant AES_256_N_KEYS : std_logic_vector(3 downto 0) := "1111"; 
+
 	-- Expanded keys pre-computed by the CPU
 	type rom_array_256 is array(0 to 14) of std_logic_vector(127 downto 0);
 	type rom_array_192 is array(0 to 12) of std_logic_vector(127 downto 0);
@@ -148,7 +152,7 @@ architecture test of FPGA_testbench is
 		); 
 
 	constant plaintext: std_logic_vector(127 downto 0) := X"ffbb7733eeaa6622dd995511cc884400";
-	constant cyphertext_256: std_logic_vector(127 downto 0) := X"8ea2b7ca516745bfeafc49904b496089";
+	constant cyphertext_256 : std_logic_vector(127 downto 0) := X"8990bfca604945b749fc67a24bea518e";
 	constant cyphertext_192 : std_logic_vector(127 downto 0) := X"91a0e0a47170df7c0daf4ca9ec6e86dd"; 
 	constant cyphertext_128 : std_logic_vector(127 downto 0) := X"5a8030d8c5b704e0b4cd7bc470d86a69"; 
 		
@@ -260,243 +264,93 @@ begin
 		--------------------------------------------------------------------------------------------------------------
 		
 		-- test 0: Encryption AES 256
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		--write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		--write("001000", "000000000000"&AES_256_N_KEYS);
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
-		-- transfer the keys
-		for i in range 0 to 14 loop
-			for j in range 0 to 7 loop
-				addr := std_logic_vector(to_unsigned(j, 3));
-				write("001"&addr, enc_rom_256(i)((j+1)*DATA_WIDTH, j*DATA_WIDTH));
-			end loop;
-		end loop;
+		--write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
 
-		write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		-- this is required by the cu structure, after the data transfer it will switch to this state
-		write("000000", ENC_AES_256 & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- transfer the keys
+		--for i in 0 to 14 loop
+		--	for j in 0 to 7 loop
+		--		addr := std_logic_vector(to_unsigned(j, 3));
+		--		write("001"&addr, enc_rom_256(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
+		--	end loop;
+		--end loop;
 
-		-- send the plaintext
-		for i in range 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			write("001"&addr, plaintext((i+1)*DATA_WIDTH, i*DATA_WIDTH));
-		end loop;
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
-		-- CU state for when it has finished the calculation
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		--write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- send the plaintext
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	write("001"&addr, plaintext((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
+		--end loop;
 
-		-- write the lock
-		write("000001", X"1111");
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
-		while result = x"0000" loop
-			read("000001");
-		end loop;
+		--write("000000", ENCRYPTION & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- write the lock
+		--write("000001", X"FFFF");
 
-		-- read the results
-		for i in range 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			read("001"&addr);
-		end loop;
+		--read("000001");
+		--while result = x"FFFF" loop
+		--	read("000001");
+		--end loop;
 
+		---- read the results
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	read("001"&addr);
+		--	assert (result = cyphertext_256((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH)) report "WRONG ENCRYPTION" severity FAILURE;
+		--end loop;
+
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
 
 		-- test 1: Decryption AES 256
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		write("001000", "000000000000"&AES_256_N_KEYS);
+		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+
 		write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
 
 		-- transfer the keys
-		for i in range 0 to 14 loop
-			for j in range 0 to 7 loop
+		for i in 0 to 14 loop
+			for j in 0 to 7 loop
 				addr := std_logic_vector(to_unsigned(j, 3));
-				write("001"&addr, dec_rom_256(i)((j+1)*DATA_WIDTH, j*DATA_WIDTH));
+				write("001"&addr, dec_rom_256(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
 			end loop;
 		end loop;
 
-		write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		-- this is required by the cu structure, after the data transfer it will switch to this state
-		write("000000", DEC_AES_256 & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- send the cyphertext
-		for i in range 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			write("001"&addr, cyphertext_256((i+1)*DATA_WIDTH, i*DATA_WIDTH));
-		end loop;
-
-		-- CU state for when it has finished the calculation
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- write the lock
-		write("000001", X"1111");
-
-		while result = x"0000" loop
-			read("000001");
-		end loop;
-
-		-- read the results
-		for i in range 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			read("001"&addr);
-		end loop;
-
-
-
-		-- test 2: Encryption AES 192
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- transfer the keys
-		for i in range 0 to 12 loop
-			for j in range 0 to 7 loop
-				addr := std_logic_vector(to_unsigned(j, 3));
-				write("001"&addr, enc_rom_192(i)((j+1)*DATA_WIDTH, j*DATA_WIDTH));
-			end loop;
-		end loop;
+		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
 		write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		-- this is required by the cu structure, after the data transfer it will switch to this state
-		write("000000", ENC_AES_192 & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
 		-- send the plaintext
-		for i in range 0 to 7 loop
+		for i in 0 to 7 loop
 			addr := std_logic_vector(to_unsigned(i, 3));
-			write("001"&addr, plaintext((i+1)*DATA_WIDTH, i*DATA_WIDTH));
+			write("001"&addr, cyphertext_256((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
 		end loop;
 
-		-- CU state for when it has finished the calculation
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
+		write("000000", DECRYPTION & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
 		-- write the lock
-		write("000001", X"1111");
+		write("000001", X"FFFF");
 
-		while result = x"0000" loop
+		read("000001");
+		while result = x"FFFF" loop
 			read("000001");
 		end loop;
 
 		-- read the results
-		for i in range 0 to 7 loop
+		for i in 0 to 7 loop
 			addr := std_logic_vector(to_unsigned(i, 3));
 			read("001"&addr);
+			assert (result = plaintext((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH)) report "WRONG DECRYPTION" severity FAILURE;
 		end loop;
 
-
-
-		-- test 3: Decryption AES 192
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- transfer the keys
-		for i in range 0 to 12 loop
-			for j in range 0 to 7 loop
-				addr := std_logic_vector(to_unsigned(j, 3));
-				write("001"&addr, dec_rom_192(i)((j+1)*DATA_WIDTH, j*DATA_WIDTH));
-			end loop;
-		end loop;
-
-		write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		-- this is required by the cu structure, after the data transfer it will switch to this state
-		write("000000", DEC_AES_192 & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- send the cyphertext
-		for i in range 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			write("001"&addr, cyphertext_192((i+1)*DATA_WIDTH, i*DATA_WIDTH));
-		end loop;
-
-		-- CU state for when it has finished the calculation
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- write the lock
-		write("000001", X"1111");
-
-		while result = x"0000" loop
-			read("000001");
-		end loop;
-
-		-- read the results
-		for i in range 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			read("001"&addr);
-		end loop;
-
-
-
-		-- test 4: Encryption AES 128
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- transfer the keys
-		for i in range 0 to 10 loop
-			for j in range 0 to 7 loop
-				addr := std_logic_vector(to_unsigned(j, 3));
-				write("001"&addr, enc_rom_128(i)((j+1)*DATA_WIDTH, j*DATA_WIDTH));
-			end loop;
-		end loop;
-
-		write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		-- this is required by the cu structure, after the data transfer it will switch to this state
-		write("000000", ENC_AES_128 & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- send the plaintext
-		for i in range 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			write("001"&addr, plaintext((i+1)*DATA_WIDTH, i*DATA_WIDTH));
-		end loop;
-
-		-- CU state for when it has finished the calculation
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- write the lock
-		write("000001", X"1111");
-
-		while result = x"0000" loop
-			read("000001");
-		end loop;
-
-		-- read the results
-		for i in range 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			read("001"&addr);
-		end loop;
-
-
-
-		-- test 5: Decryption AES 128
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- transfer the keys
-		for i in range 0 to 10 loop
-			for j in range 0 to 7 loop
-				addr := std_logic_vector(to_unsigned(j, 3));
-				write("001"&addr, dec_rom_128(i)((j+1)*DATA_WIDTH, j*DATA_WIDTH));
-			end loop;
-		end loop;
-
-		write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		-- this is required by the cu structure, after the data transfer it will switch to this state
-		write("000000", DEC_AES_128 & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- send the cyphertext
-		for i in range 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			write("001"&addr, cyphertext_128((i+1)*DATA_WIDTH, i*DATA_WIDTH));
-		end loop;
-
-		-- CU state for when it has finished the calculation
-		write("000000", IDLE & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-
-		-- write the lock
-		write("000001", X"1111");
-
-		while result = x"0000" loop
-			read("000001");
-		end loop;
-
-		-- read the results
-		for i in range 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			read("001"&addr);
-		end loop;
-
+		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 		wait;
 	end process;
 end test;

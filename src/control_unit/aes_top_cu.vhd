@@ -69,9 +69,16 @@ architecture behavioral of aes_top_cu is
 		);
 	end component adder;
 
-	constant AES_128_ROUNDS : std_logic_vector(3 downto 0) := "1001";
-	constant AES_192_ROUNDS : std_logic_vector(3 downto 0) := "1011";
-	constant AES_256_ROUNDS : std_logic_vector(3 downto 0) := "1101"; 
+	constant AES_128_N_KEYS : std_logic_vector(3 downto 0) := "1011"; 
+	constant AES_192_N_KEYS : std_logic_vector(3 downto 0) := "1101"; 
+	constant AES_256_N_KEYS : std_logic_vector(3 downto 0) := "1111"; 
+
+	constant ENC_AES_128_ROUNDS : std_logic_vector(3 downto 0) := "1001";
+	constant ENC_AES_192_ROUNDS : std_logic_vector(3 downto 0) := "1011";
+	constant ENC_AES_256_ROUNDS : std_logic_vector(3 downto 0) := "1101";
+	constant DEC_AES_128_ROUNDS : std_logic_vector(3 downto 0) := "1010";
+	constant DEC_AES_192_ROUNDS : std_logic_vector(3 downto 0) := "1100";
+	constant DEC_AES_256_ROUNDS : std_logic_vector(3 downto 0) := "1110"; 
 
 	signal curr_state, next_state: std_logic_vector(OPCODE_SIZE-1 downto 0);
 	signal curr_data_reg_en, next_data_reg_en: std_logic_vector(8 downto 0);
@@ -84,8 +91,8 @@ architecture behavioral of aes_top_cu is
 	signal ram_addr_en: std_logic;
 	signal rst_int: std_logic;
 	signal rst_buf_addr: std_logic;
-	signal curr_n_rounds, next_n_rounds: std_logic_vector(3 downto 0);
-	signal n_rounds_en: std_logic;
+	signal curr_n_keys: std_logic_vector(3 downto 0);
+	signal n_keys_en: std_logic;
 begin
 	rst_buf_addr <= rst or rst_int;
 
@@ -168,20 +175,18 @@ begin
 			q => curr_ram_addr
 		);
 
-	-- store the number of rounds to be executed by the units
-	curr_rounds_reg: reg_en
+	-- store the number of keys to be read
+	n_keys_reg: reg_en
 		generic map (
 			N => 4
 		)
 		port map (
 			clk => clk,
 			rst => rst,
-			en => n_rounds_en,
+			en => n_keys_en,
 			d => ipm_data_in(3 downto 0),
-			q => curr_n_rounds
+			q => curr_n_keys
 		);
-
-	n_rounds <= curr_n_rounds;
 
 	state_reg: process(clk)
 	begin
@@ -194,7 +199,7 @@ begin
 		end if;
 	end process state_reg;
 
-	comblogic: process(curr_state, curr_buf_addr, curr_data_reg_en, curr_ram_addr, curr_n_rounds,
+	comblogic: process(curr_state, curr_buf_addr, curr_data_reg_en, curr_ram_addr, curr_n_keys,
 		en, opcode, ack, int_polling, cpu_write_completed, cpu_read_completed,
 		ipm_data_in, done_enc, done_dec, key_idx_enc, key_idx_dec, core_enc_data_out,
 		core_dec_data_out)
@@ -213,11 +218,12 @@ begin
 		ram_addr <= (others => '0');
 		buf_addr_en <= '0';
 		ram_addr_en <= '0';
-		n_rounds_en <= '0';
+		n_keys_en <= '0';
 		-- reg_en by default resets to 0, however we cannot use address 0 since it's reserved.
 		-- for this reason we generate the read address by concatenating the offset to "001"
 		buf_addr <= "001"&curr_buf_addr;
 		data_reg_sample <= '0';
+		n_rounds <= (others => '0');
 
 		if (int_polling = '1') then
 			err <= '1';
@@ -235,7 +241,7 @@ begin
 			when ALG_SEL => 
 				buf_en <= '1';
 				if (cpu_write_completed = '1') then
-					n_rounds_en <= '1';
+					n_keys_en <= '1';
 					next_state <= WAIT_TR_CLOSE;
 				end if;
 
@@ -246,7 +252,7 @@ begin
 					next_state <= KEY_WRITE;
 				end if;
 
-				if (curr_ram_addr = curr_n_rounds) then
+				if (curr_ram_addr = curr_n_keys) then
 					next_state <= WAIT_TR_CLOSE;
 				end if;
 
@@ -278,6 +284,21 @@ begin
 			when ENCRYPTION => 
 				start_enc <= '1';
 				ram_addr <= key_idx_enc;
+				case (curr_n_keys) is
+					when AES_128_N_KEYS => 
+						n_rounds <= ENC_AES_128_ROUNDS;
+
+					when AES_192_N_KEYS => 
+						n_rounds <= ENC_AES_192_ROUNDS;
+
+					when AES_256_N_KEYS => 
+						n_rounds <= ENC_AES_256_ROUNDS;
+
+					when others => 
+						err <= '1';
+						next_state <= WAIT_TR_CLOSE;
+				end case;
+
 				if (done_enc = '1') then
 					next_state <= ENC_DATA_TX;
 				end if;
@@ -285,6 +306,21 @@ begin
 			when DECRYPTION => 
 				start_dec <= '1';
 				ram_addr <= key_idx_dec;
+				case (curr_n_keys) is
+					when AES_128_N_KEYS => 
+						n_rounds <= DEC_AES_128_ROUNDS;
+
+					when AES_192_N_KEYS => 
+						n_rounds <= DEC_AES_192_ROUNDS;
+
+					when AES_256_N_KEYS => 
+						n_rounds <= DEC_AES_256_ROUNDS;
+
+					when others => 
+						err <= '1';
+						next_state <= WAIT_TR_CLOSE;
+				end case;
+				
 				if (done_dec = '1') then
 					next_state <= DEC_DATA_TX;
 				end if;
@@ -366,7 +402,6 @@ begin
 				buf_en <= '1';
 				buf_rw <= '1';
 				buf_addr <= "000001";
-				ipm_data_out <= (others => '0');
 				next_state <= WAIT_TR_CLOSE;
 
 			when WAIT_TR_CLOSE => 

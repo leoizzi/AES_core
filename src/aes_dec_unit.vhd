@@ -34,7 +34,6 @@ architecture structural of aes_dec_unit is
 			done: out std_logic;
 
 			first_round: out std_logic;
-			--last_round: out std_logic;
 
 			-- set to 1 when the SubBytes has to start its computation
 			start_block: out std_logic;
@@ -57,7 +56,6 @@ architecture structural of aes_dec_unit is
 		    end_block: out std_logic;
 
 		    first_round: in std_logic;
-		    --last_round: in std_logic;
 
 		    -- enable for the register which is input to the SubBytes step
 		    en_ff1: in std_logic;
@@ -68,7 +66,7 @@ architecture structural of aes_dec_unit is
 		);
 	end component dec_datapath;
 
-	signal first_round, last_round, start_block, end_block, en_ff1: std_logic;
+	signal first_round, start_block, end_block, en_ff1: std_logic;
 begin
 	cu: aes_cu_dec
 		port map (
@@ -78,7 +76,6 @@ begin
 			n_rounds => n_rounds,
 			done => done,
 			first_round => first_round,
-			--last_round => last_round,
 			start_block => start_block,
 			end_block => end_block,
 		    en_ff1 => en_ff1,
@@ -92,7 +89,6 @@ begin
 			start => start_block,
 			end_block => end_block,
 			first_round => first_round,
-			--last_round => last_round,
 			en_ff1 => en_ff1,
 			data_in => data_in,
 			key => key,

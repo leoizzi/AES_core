@@ -140,21 +140,23 @@ begin
 				first_round <= '1';
 				en_ff1 <= '1';
 				en_n_rounds <= '1';
+				en_rounds <= '1';
 				next_state <= MIDDLE_ROUND0;
 
 			when MIDDLE_ROUND0 => 
 				if (end_block = '1') then
 					next_state <= MIDDLE_ROUND1;
-					en_rounds <= '1';
 				else
 					start_block <= '1';
 				end if;
 
-				if (curr_round = "0000") then
+				-- put into inverse shift_row the data coming from the add_round_key stage
+				if (curr_round = "0001") then
 					first_round <= '1';
 				end if; 
 
 			when MIDDLE_ROUND1 => 
+				en_rounds <= '1';
 				next_state <= MIDDLE_ROUND2;
 				en_ff1 <= '1';
 
@@ -168,7 +170,6 @@ begin
 			when LAST_ROUND0 => 
 				if (end_block = '1') then
 					next_state <= LAST_ROUND1;
-					en_rounds <= '1';
 				else
 					start_block <= '1';
 				end if;
