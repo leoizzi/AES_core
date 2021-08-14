@@ -61,18 +61,20 @@ AES_FPGA_RETURN_CODE AES_FPGA_setup(B5_tAesCtx *ctx, const uint8_t *Key, int16_t
 	FPGA_IPM_DATA rk_msb, rk_lsb;
 
 	uint8_t key_cnt = 0;
+	/*FPGA_IPM_DATA* pt = (FPGA_IPM_DATA*)ctx->rk;*/
+
 	for (int i=0; i < (algo_sel << 2); i++){ //4*(Nr + 1)
 		/* ctx-> rk[i] is 32-bit and IPM data is 16 bit */
 		rk_msb = (FPGA_IPM_DATA) ((ctx->rk[i] >> 16) & 0x0000FFFF);
 		rk_lsb = (FPGA_IPM_DATA) (ctx->rk[i] & 0x0000FFFF);
 
 		FPGA_IPM_write(AES_CORE_ID,			  			  //AES_ID.
-					  (base_addr + (key_cnt % 8)),		  //FPGA ADDRESS.
+					  (base_addr + (key_cnt & 0x07)),     //FPGA ADDRESS.
 					   &rk_lsb);                          //16-bit Data.
 		key_cnt ++;
 
 		FPGA_IPM_write(AES_CORE_ID,			  			  //AES_ID.
-					  (base_addr + (key_cnt % 8)),		  //FPGA ADDRESS.
+					  (base_addr + (key_cnt & 0x07)),     //FPGA ADDRESS.
 					   &rk_msb);                          //16-bit Data.
 		key_cnt ++;
 	}
@@ -104,10 +106,10 @@ AES_FPGA_RETURN_CODE AES_FPGA_encrypt(B5_tAesCtx *ctx, uint8_t *plaintext, uint8
 	FPGA_IPM_DATA tx_data;
 
 	//Transmit 128-bit data.
-	for (int i=0; i<8; i++){
-		tx_data = (FPGA_IPM_DATA) ( (plaintext[i] << 8) | plaintext[i+1] );
+	for (int i=0; i<8; i=i+2){
+		tx_data = (FPGA_IPM_DATA) ( (plaintext[i+1] << 8) | plaintext[i] );
 		FPGA_IPM_write(AES_CORE_ID,		   //AES_ID.
-					  (base_addr + i),	   //FPGA ADDRESS.
+					  (base_addr + i>>1),  //FPGA ADDRESS.
 					   &tx_data);		   //NO ACK.
 	}
 	//Close transaction.
@@ -129,15 +131,15 @@ AES_FPGA_RETURN_CODE AES_FPGA_encrypt(B5_tAesCtx *ctx, uint8_t *plaintext, uint8
 				   &lock);		       //NO ACK.
 
 	//Wait until FPGA ends the encryption.
-	while (lock != FPGA_LOCK)
+	while (lock == FPGA_LOCK)
 		FPGA_IPM_read(AES_CORE_ID, LOCK_ADDR, &lock);
 
 	//FPGA computation finished, read back the encrypted data.
 	FPGA_IPM_DATA rcvd;
-	for (int i=0; i<8; i++){
-		FPGA_IPM_read(AES_CORE_ID, (base_addr + i), &rcvd);
-		cyphertext[i]   = (uint8_t) ((rcvd >> 8) & 0x00FF);
-		cyphertext[i+1] = (uint8_t) (rcvd & 0x00FF);
+	for (int i=0; i<8; i=i+2){
+		FPGA_IPM_read(AES_CORE_ID, (base_addr + i>>1), &rcvd);
+		cyphertext[i+1]   = (uint8_t) ((rcvd >> 8) & 0x00FF);
+		cyphertext[i] = (uint8_t) (rcvd & 0x00FF);
 	}
 
 	//Close transaction.
@@ -154,7 +156,7 @@ AES_FPGA_RETURN_CODE AES_FPGA_decrypt(B5_tAesCtx *ctx, uint8_t *cyphertext, uint
 	int8_t r;
 	FPGA_IPM_ADDRESS base_addr = WRITE_BASE_ADDR;
 
-	if (plaintextSize != 16) //plaintext must be 128 bit length.
+	if (cyphertextSize != 16) //plaintext must be 128 bit length.
 		return AES_FPGA_RES_INVALID_ARGUMENT;
 
 //Transmit the data to encrypt.
@@ -169,10 +171,10 @@ AES_FPGA_RETURN_CODE AES_FPGA_decrypt(B5_tAesCtx *ctx, uint8_t *cyphertext, uint
 	FPGA_IPM_DATA tx_data;
 
 	//Transmit 128-bit data.
-	for (int i=0; i<8; i++){
-		tx_data = (FPGA_IPM_DATA) ( (cyphertextSize[i] << 8) | cyphertextSize[i+1] );
+	for (int i=0; i<8; i=i+2){
+		tx_data = (FPGA_IPM_DATA) ( (cyphertext[i+1] << 8) | cyphertext[i] );
 		FPGA_IPM_write(AES_CORE_ID,		   //AES_ID.
-					  (base_addr + i),	   //FPGA ADDRESS.
+					  (base_addr + i>>1),	   //FPGA ADDRESS.
 					   &tx_data);		   //NO ACK.
 	}
 	//Close transaction.
@@ -199,10 +201,10 @@ AES_FPGA_RETURN_CODE AES_FPGA_decrypt(B5_tAesCtx *ctx, uint8_t *cyphertext, uint
 
 	//FPGA computation finished, read back the encrypted data.
 	FPGA_IPM_DATA rcvd;
-	for (int i=0; i<8; i++){
-		FPGA_IPM_read(AES_CORE_ID, (base_addr + i), &rcvd);
-		plaintext[i]   = (uint8_t) ((rcvd >> 8) & 0x00FF);
-		plaintext[i+1] = (uint8_t) (rcvd & 0x00FF);
+	for (int i=0; i<8; i=i+2){
+		FPGA_IPM_read(AES_CORE_ID, (base_addr + i>>1), &rcvd);
+		plaintext[i+1]   = (uint8_t) ((rcvd >> 8) & 0x00FF);
+		plaintext[i] = (uint8_t) (rcvd & 0x00FF);
 	}
 
 	//Close transaction.

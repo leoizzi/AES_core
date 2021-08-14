@@ -40,7 +40,7 @@
 
 /* FPGA ADDRESSES */
 #define LOCK_ADDR				(0x01)
-#define ALG_SEL_ADDR            (0x08)
+#define ALG_SEL_ADDR            (0x01 << 3)
 #define WRITE_BASE_ADDR			(0x01 << 3)
 
 /* RETURN TYPE */
@@ -80,7 +80,7 @@ AES_FPGA_RETURN_CODE AES_FPGA_encrypt(B5_tAesCtx *ctx, uint8_t *plaintext, uint8
  *  \result plaintext 128 bit plain text.
  *  \return Returns AES_FPGA_RES_OK on success, error code on error.
  */
-AES_FPGA_RETURN_CODE AES_FPGA_decrypt(B5_tAesCtx *ctx, uint8_t *cyphertext, uint8_t cyphertextSize,uint8_t *plaintext);
+AES_FPGA_RETURN_CODE AES_FPGA_decrypt(B5_tAesCtx *ctx, uint8_t *cyphertext, uint8_t cyphertextSize, uint8_t *plaintext);
 #endif /* INC_AES_FPGA_H_ */
 
 
