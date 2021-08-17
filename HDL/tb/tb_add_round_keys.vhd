@@ -30,6 +30,6 @@ begin
 		wait for 1 ns;
 		assert (data_out = expected_data) report "WRONG ADD ROUND KEY" severity FAILURE;
 		wait;
-	end process
+	end process;
 
 end test;
