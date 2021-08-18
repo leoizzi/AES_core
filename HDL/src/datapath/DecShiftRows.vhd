@@ -10,6 +10,7 @@ end DecShiftRows;
 architecture Dataflow of DecShiftRows is
 
 	signal res0, res1, res2, res3: std_logic_vector(31 downto 0);
+    signal row0, row1, row2, row3: std_logic_vector(31 downto 0);
 
 begin
 	row0 <= data_in(127 downto 120)&data_in(95 downto 88)&data_in(63 downto 56)&data_in(31 downto 24);
@@ -18,17 +19,17 @@ begin
     row3 <= data_in(103 downto 96)&data_in(71 downto 64)&data_in(39 downto 32)&data_in(7 downto 0);
 
     --Row 0.
-    res0 <= data_in(31 downto 0);
+    res0 <= row0(31 downto 0);
     --Row 1.
-    res1 <= data_in(55 downto 32)&data_in(63 downto 56);
+    res1 <= row1(7 downto 0)&row1(31 downto 8);
     --Row 2.
-    res2 <= data_in(79 downto 64)&data_in(95 downto 80);
+    res2 <= row2(15 downto 0)&row2(31 downto 16);
     --Row 3.
-    res3 <= data_in(103 downto 96)&data_in(127 downto 104);
+    res3 <= row3(23 downto 0)&row3(31 downto 24);
 
-    data_out(31 downto 0) <= res0(31 downto 24)&res1(31 downto 24)&res2(31 downto 24)&res3(31 downto 24);
-    data_out(63 downto 32) <= res0(23 downto 16)&res1(23 downto 16)&res2(23 downto 16)&res3(23 downto 16);
-    data_out(95 downto 64) <= res0(15 downto 8)&res1(15 downto 8)&res2(15 downto 8)&res3(15 downto 8);
-    data_out(127 downto 96) <= res0(7 downto 0)&res1(7 downto 0)&res2(7 downto 0)&res3(7 downto 0);
+    data_out(127 downto 96) <= res0(31 downto 24)&res1(31 downto 24)&res2(31 downto 24)&res3(31 downto 24);
+    data_out(95 downto 64) <= res0(23 downto 16)&res1(23 downto 16)&res2(23 downto 16)&res3(23 downto 16);
+    data_out(63 downto 32) <= res0(15 downto 8)&res1(15 downto 8)&res2(15 downto 8)&res3(15 downto 8);
+    data_out(31 downto 0) <= res0(7 downto 0)&res1(7 downto 0)&res2(7 downto 0)&res3(7 downto 0);
 
 end Dataflow;

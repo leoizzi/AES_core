@@ -8,13 +8,13 @@ entity enc_datapath is
 		rst: in std_logic;
 		
 		start: in std_logic;
-	   end_block: out std_logic;
+	   	end_block: out std_logic;
 
-	   first_round: in std_logic;
-	   last_round: in std_logic;
+	   	first_round: in std_logic;
+	   	last_round: in std_logic;
 
-	   -- enable for the register which is input to the SubBytes step
-	   en_ff2: in std_logic;
+	   	-- enable for the register which is input to the SubBytes step
+	   	en_ff2: in std_logic;
 
 		data_in: in std_logic_vector(127 downto 0);
 		key: in std_logic_vector(127 downto 0);
