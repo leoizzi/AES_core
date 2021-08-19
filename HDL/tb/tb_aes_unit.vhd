@@ -45,39 +45,39 @@ architecture tb of tb_aes_unit is
 	type rom_array is array(0 to 14) of std_logic_vector(127 downto 0);
 
 	constant enc_rom : rom_array := (
-		X"000102030405060708090a0b0c0d0e0f",
-		X"101112131415161718191a1b1c1d1e1f",
-		X"a573c29fa176c498a97fce93a572c09c",
-		X"1651a8cd0244beda1a5da4c10640bade",
-		X"ae87dff00ff11b68a68ed5fb03fc1567",
-		X"6de1f1486fa54f9275f8eb5373b8518d",
-		X"c656827fc9a799176f294cec6cd5598b",
-		X"3de23a75524775e727bf9eb45407cf39",
-		X"0bdc905fc27b0948ad5245a4c1871c2f",
-		X"45f5a66017b2d387300d4d33640a820a",
-		X"7ccff71cbeb4fe5413e6bbf0d261a7df",
-		X"f01afafee7a82979d7a5644ab3afe640",
-		X"2541fe719bf500258813bbd55a721c0a",
-		X"4e5a6699a9f24fe07e572baacdf8cdea",
-		X"24fc79ccbf0979e9371ac23c6d68de36"
+		X"0f0e0d0c0b0a09080706050403020100",
+		X"1f1e1d1c1b1a19181716151413121110",
+		X"9cc072a593ce7fa998c476a19fc273a5",
+		X"deba4006c1a45d1adabe4402cda85116",
+		X"6715fc03fbd58ea6681bf10ff0df87ae",
+		X"8d51b87353ebf875924fa56f48f1e16d",
+		X"8b59d56cec4c296f1799a7c97f8256c6",
+		X"39cf0754b49ebf27e7754752753ae23d",
+		X"2f1c87c1a44552ad48097bc25f90dc0b",
+		X"0a820a64334d0d3087d3b21760a6f545",
+		X"dfa761d2f0bbe61354feb4be1cf7cf7c",
+		X"40e6afb34a64a5d77929a8e7fefa1af0",
+		X"0a1c725ad5bb13882500f59b71fe4125",
+		X"eacdf8cdaa2b577ee04ff2a999665a4e",
+		X"36de686d3cc21a37e97909bfcc79fc24"
 		); 
 
 	constant dec_rom : rom_array := (
-		X"24fc79ccbf0979e9371ac23c6d68de36",
-		X"4e5a6699a9f24fe07e572baacdf8cdea",
-		X"2541fe719bf500258813bbd55a721c0a",
-		X"f01afafee7a82979d7a5644ab3afe640",
-		X"7ccff71cbeb4fe5413e6bbf0d261a7df",
-		X"45f5a66017b2d387300d4d33640a820a",
-		X"0bdc905fc27b0948ad5245a4c1871c2f",
-		X"3de23a75524775e727bf9eb45407cf39",
-		X"c656827fc9a799176f294cec6cd5598b",
-		X"6de1f1486fa54f9275f8eb5373b8518d",
-		X"ae87dff00ff11b68a68ed5fb03fc1567",
-		X"1651a8cd0244beda1a5da4c10640bade",
-		X"a573c29fa176c498a97fce93a572c09c",
-		X"101112131415161718191a1b1c1d1e1f",
-		X"000102030405060708090a0b0c0d0e0f"
+		X"36de686d3cc21a37e97909bfcc79fc24",
+		X"eacdf8cdaa2b577ee04ff2a999665a4e",
+		X"0a1c725ad5bb13882500f59b71fe4125",
+		X"40e6afb34a64a5d77929a8e7fefa1af0",
+		X"dfa761d2f0bbe61354feb4be1cf7cf7c",
+		X"0a820a64334d0d3087d3b21760a6f545",
+		X"2f1c87c1a44552ad48097bc25f90dc0b",
+		X"39cf0754b49ebf27e7754752753ae23d",
+		X"8b59d56cec4c296f1799a7c97f8256c6",
+		X"8d51b87353ebf875924fa56f48f1e16d",
+		X"6715fc03fbd58ea6681bf10ff0df87ae",
+		X"deba4006c1a45d1adabe4402cda85116",
+		X"9cc072a593ce7fa998c476a19fc273a5",
+		X"1f1e1d1c1b1a19181716151413121110",
+		X"0f0e0d0c0b0a09080706050403020100"
 		--X"24fc79ccbf0979e9371ac23c6d68de36",
 		--X"4e5a6699a9f24fe07e572baacdf8cdea",
 		--X"2541fe719bf500258813bbd55a721c0a",
@@ -159,10 +159,10 @@ begin
 		start <= '0';
 		n_rounds_enc <= std_logic_vector(to_unsigned(13, 4));
 		n_rounds_dec <= std_logic_vector(to_unsigned(14, 4));
-		data_in0 <= X"00112233445566778899aabbccddeeff";
+		data_in0 <= X"ffeeddccbbaa99887766554433221100";
 		--data_in1 <= X"8990BFCA604945B749FC67A24BEA518E";
 		--data_in1 <= X"8960494B9049FCEABF456751CAB7A28E";
-		data_in1 <= X"8ea2b7ca516745bfeafc49904b496089";
+		data_in1 <= X"8960494b9049fceabf456751cab7a28e";
 		wait for 15 ns;
 		rst <= '0';
 		wait for 20 ns;

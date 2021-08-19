@@ -23,12 +23,11 @@ architecture structural of enc_mix_columns is
 
 begin
 
-	
 	-- split data_in into columns
-	col0 <= data_in(103 downto 96)&data_in(111 downto 104)&data_in(119 downto 112)&data_in(127 downto 120);
-	col1 <= data_in(71 downto 64)&data_in(79 downto 72)&data_in(87 downto 80)&data_in(95 downto 88);
-	col2 <= data_in(39 downto 32)&data_in(47 downto 40)&data_in(55 downto 48)&data_in(63 downto 56);
-	col3 <= data_in(7 downto 0)&data_in(15 downto 8)&data_in(23 downto 16)&data_in(31 downto 24);
+	col0 <= data_in(31 downto 0);
+	col1 <= data_in(63 downto 32);
+	col2 <= data_in(95 downto 64);
+	col3 <= data_in(127 downto 96);
 
 	em0: enc_matrix_mul
 		port map (
@@ -54,11 +53,10 @@ begin
 			col_out => enc_res3
 		);
 
-	-- switch the output back to row representation
-	enc_res(31 downto 0) <= enc_res3(7 downto 0)&enc_res3(15 downto 8)&enc_res3(23 downto 16)&enc_res3(31 downto 24);
-	enc_res(63 downto 32) <= enc_res2(7 downto 0)&enc_res2(15 downto 8)&enc_res2(23 downto 16)&enc_res2(31 downto 24);
-	enc_res(95 downto 64) <= enc_res1(7 downto 0)&enc_res1(15 downto 8)&enc_res1(23 downto 16)&enc_res1(31 downto 24);
-	enc_res(127 downto 96) <= enc_res0(7 downto 0)&enc_res0(15 downto 8)&enc_res0(23 downto 16)&enc_res0(31 downto 24);
+	enc_res(31 downto 0) <= enc_res0;
+	enc_res(63 downto 32) <= enc_res1;
+	enc_res(95 downto 64) <= enc_res2;
+	enc_res(127 downto 96) <= enc_res3;
 
 	data_out <= enc_res;
 end structural;

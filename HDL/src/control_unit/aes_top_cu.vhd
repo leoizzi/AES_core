@@ -70,6 +70,13 @@ architecture behavioral of aes_top_cu is
 		);
 	end component adder;
 
+	component be_to_le_converter is
+		port (
+			be_data: in std_logic_vector(127 downto 0);
+			le_data: out std_logic_vector(127 downto 0)
+		);
+	end component be_to_le_converter;
+
 	constant AES_128_N_KEYS : std_logic_vector(3 downto 0) := "1011"; 
 	constant AES_192_N_KEYS : std_logic_vector(3 downto 0) := "1101"; 
 	constant AES_256_N_KEYS : std_logic_vector(3 downto 0) := "1111"; 
@@ -84,6 +91,7 @@ architecture behavioral of aes_top_cu is
 	signal curr_state, next_state: std_logic_vector(OPCODE_SIZE-1 downto 0);
 	signal curr_data_reg_en, next_data_reg_en: std_logic_vector(8 downto 0);
 	signal data_reg_out: std_logic_vector(127 downto 0);
+	signal be_data_reg_out, le_data_reg_out: std_logic_vector(127 downto 0);
 	signal data_reg_sample: std_logic;
 	signal data_reg_sample_vec: std_logic_vector(7 downto 0);
 	signal curr_buf_addr, next_buf_addr: std_logic_vector(2 downto 0);
@@ -110,12 +118,18 @@ begin
 				rst => rst,
 				en => data_reg_sample_vec(i),
 				d => ipm_data_in,
-				q => data_reg_out(((i+1) * DATA_WIDTH)-1 downto i*DATA_WIDTH)
+				q => be_data_reg_out(((i+1) * DATA_WIDTH)-1 downto i*DATA_WIDTH)
 			);
 	end generate data_comb_reg_loop;
 
-	core_data_in <= data_reg_out;
-	ram_data_in <= data_reg_out;
+	be_to_le: be_to_le_converter
+		port map (
+			be_data => be_data_reg_out,
+			le_data => le_data_reg_out
+		);
+
+	core_data_in <= le_data_reg_out;
+	ram_data_in <= le_data_reg_out;
 
 	-- en_data controls which data_reg must sample from the Data Buffer
 	en_data_reg: reg_en
