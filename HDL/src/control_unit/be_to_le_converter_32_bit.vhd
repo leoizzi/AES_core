@@ -1,15 +1,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use work.CONSTANTS.all;
 
-entity be_to_le_converter is
+entity be_to_le_converter_32_bit is
 	port (
 		be_data: in std_logic_vector(127 downto 0);
 		le_data: out std_logic_vector(127 downto 0)
 	);
-end entity be_to_le_converter;
+end entity be_to_le_converter_32_bit;
 
-architecture dataflow of be_to_le_converter is
+architecture dataflow of be_to_le_converter_32_bit is
 	signal data0, data1, data2, data3: std_logic_vector(31 downto 0);
 begin
 	data0 <= be_data(31 downto 0);

@@ -70,9 +70,10 @@ architecture STRUCTURAL of TOP_ENTITY is
 	signal 	cpu_read_completed_ip    : std_logic_vector(NUM_IPS-1 downto 0);
 	signal 	cpu_write_completed_ip   : std_logic_vector(NUM_IPS-1 downto 0);
 
+	signal int_opcode: std_logic_vector(5 downto 0);
 begin
 
-	fpga_gpio_leds <= (others => '1');
+	fpga_gpio_leds <= "00"&int_opcode;
 
 	data_buff: entity work.DATA_BUFFER
 		generic map(
@@ -136,6 +137,7 @@ begin
 		port map(
 			clk => cpu_fpga_clk,
 			rst => cpu_fpga_rst,
+			int_opcode => int_opcode,
 			en => enable_ip(0),
 			opcode => opcode_ip(0),
 			ack => ack_ip(0),

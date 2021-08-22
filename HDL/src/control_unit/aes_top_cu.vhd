@@ -10,6 +10,9 @@ entity aes_top_cu is
 		clk: in std_logic;
 		rst: in std_logic;
 
+		-- DEBUG
+		int_opcode: out std_logic_vector(5 downto 0);
+
 		-- IP manager signals
 		en: in std_logic;
 		opcode: in std_logic_vector(OPCODE_SIZE-1 downto 0);
@@ -70,12 +73,19 @@ architecture behavioral of aes_top_cu is
 		);
 	end component adder;
 
-	component be_to_le_converter is
+	component be_to_le_converter_32_bit is
 		port (
 			be_data: in std_logic_vector(127 downto 0);
 			le_data: out std_logic_vector(127 downto 0)
 		);
-	end component be_to_le_converter;
+	end component be_to_le_converter_32_bit;
+
+	component be_to_le_converter_16_bit is
+		port (
+			be_data: in std_logic_vector(127 downto 0);
+			le_data: out std_logic_vector(127 downto 0)
+		);
+	end component be_to_le_converter_16_bit;
 
 	constant AES_128_N_KEYS : std_logic_vector(3 downto 0) := "1011"; 
 	constant AES_192_N_KEYS : std_logic_vector(3 downto 0) := "1101"; 
@@ -91,7 +101,8 @@ architecture behavioral of aes_top_cu is
 	signal curr_state, next_state: std_logic_vector(OPCODE_SIZE-1 downto 0);
 	signal curr_data_reg_en, next_data_reg_en: std_logic_vector(8 downto 0);
 	signal data_reg_out: std_logic_vector(127 downto 0);
-	signal be_data_reg_out, le_data_reg_out: std_logic_vector(127 downto 0);
+	signal be_data_reg_out, key_le_data_reg_out, data_le_data_reg_out: std_logic_vector(127 downto 0);
+	signal be_core_enc_data_out, be_core_dec_data_out: std_logic_vector(127 downto 0);
 	signal data_reg_sample: std_logic;
 	signal data_reg_sample_vec: std_logic_vector(7 downto 0);
 	signal curr_buf_addr, next_buf_addr: std_logic_vector(2 downto 0);
@@ -122,14 +133,35 @@ begin
 			);
 	end generate data_comb_reg_loop;
 
-	be_to_le: be_to_le_converter
+	-- the keys sent by the CPU needs to be reversed 32 bits at the time
+	key_in_be_to_le: be_to_le_converter_32_bit
 		port map (
 			be_data => be_data_reg_out,
-			le_data => le_data_reg_out
+			le_data => key_le_data_reg_out
 		);
 
-	core_data_in <= le_data_reg_out;
-	ram_data_in <= le_data_reg_out;
+	-- the data sent by the CPU needs to be reversed 16 bits at the time
+	data_in_be_to_le: be_to_le_converter_16_bit
+		port map (
+			be_data => be_data_reg_out,
+			le_data => data_le_data_reg_out
+		);
+
+	-- send the data back to the cpu ordered as expected
+	enc_out_le_to_be: be_to_le_converter_16_bit
+		port map (
+			be_data => core_enc_data_out,
+			le_data => be_core_enc_data_out
+		);
+
+	dec_out_le_to_be: be_to_le_converter_16_bit
+		port map (
+			be_data => core_dec_data_out,
+			le_data => be_core_dec_data_out
+		);
+
+	core_data_in <= data_le_data_reg_out;
+	ram_data_in <= key_le_data_reg_out;
 
 	-- en_data controls which data_reg must sample from the Data Buffer
 	en_data_reg: reg_en
@@ -214,10 +246,12 @@ begin
 		end if;
 	end process state_reg;
 
+	int_opcode <= curr_state;
+
 	comblogic: process(curr_state, curr_buf_addr, curr_data_reg_en, curr_ram_addr, curr_n_keys,
 		en, opcode, ack, int_polling, cpu_write_completed, cpu_read_completed,
-		ipm_data_in, done_enc, done_dec, key_idx_enc, key_idx_dec, core_enc_data_out,
-		core_dec_data_out)
+		ipm_data_in, done_enc, done_dec, key_idx_enc, key_idx_dec, be_core_enc_data_out,
+		be_core_dec_data_out)
 	begin
 		next_state <= curr_state;
 		next_data_reg_en <= curr_data_reg_en;
@@ -346,28 +380,28 @@ begin
 				buf_rw <= '1';
 				case(curr_buf_addr) is
 					when "000" => 
-						ipm_data_out <= core_enc_data_out(15 downto 0);
+						ipm_data_out <= be_core_enc_data_out(15 downto 0);
 
 					when "001" => 
-						ipm_data_out <= core_enc_data_out(31 downto 16);
+						ipm_data_out <= be_core_enc_data_out(31 downto 16);
 
 					when "010" => 
-						ipm_data_out <= core_enc_data_out(47 downto 32);
+						ipm_data_out <= be_core_enc_data_out(47 downto 32);
 
 					when "011" => 
-						ipm_data_out <= core_enc_data_out(63 downto 48);
+						ipm_data_out <= be_core_enc_data_out(63 downto 48);
 
 					when "100" => 
-						ipm_data_out <= core_enc_data_out(79 downto 64);
+						ipm_data_out <= be_core_enc_data_out(79 downto 64);
 
 					when "101" => 
-						ipm_data_out <= core_enc_data_out(95 downto 80);
+						ipm_data_out <= be_core_enc_data_out(95 downto 80);
 
 					when "110" => 
-						ipm_data_out <= core_enc_data_out(111 downto 96);
+						ipm_data_out <= be_core_enc_data_out(111 downto 96);
 
 					when "111" => 
-						ipm_data_out <= core_enc_data_out(127 downto 112);
+						ipm_data_out <= be_core_enc_data_out(127 downto 112);
 						next_state <= CORE_DONE;
 						rst_int <= '1';
 
@@ -382,28 +416,28 @@ begin
 				buf_rw <= '1';
 				case(curr_buf_addr) is
 					when "000" => 
-						ipm_data_out <= core_dec_data_out(15 downto 0);
+						ipm_data_out <= be_core_dec_data_out(15 downto 0);
 
 					when "001" => 
-						ipm_data_out <= core_dec_data_out(31 downto 16);
+						ipm_data_out <= be_core_dec_data_out(31 downto 16);
 
 					when "010" => 
-						ipm_data_out <= core_dec_data_out(47 downto 32);
+						ipm_data_out <= be_core_dec_data_out(47 downto 32);
 
 					when "011" => 
-						ipm_data_out <= core_dec_data_out(63 downto 48);
+						ipm_data_out <= be_core_dec_data_out(63 downto 48);
 
 					when "100" => 
-						ipm_data_out <= core_dec_data_out(79 downto 64);
+						ipm_data_out <= be_core_dec_data_out(79 downto 64);
 
 					when "101" => 
-						ipm_data_out <= core_dec_data_out(95 downto 80);
+						ipm_data_out <= be_core_dec_data_out(95 downto 80);
 
 					when "110" => 
-						ipm_data_out <= core_dec_data_out(111 downto 96);
+						ipm_data_out <= be_core_dec_data_out(111 downto 96);
 
 					when "111" => 
-						ipm_data_out <= core_dec_data_out(127 downto 112);
+						ipm_data_out <= be_core_dec_data_out(127 downto 112);
 						next_state <= CORE_DONE;
 						rst_int <= '1';
 

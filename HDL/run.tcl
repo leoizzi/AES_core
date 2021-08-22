@@ -71,6 +71,13 @@ append xcf_path "/" $impl_name ".xcf"
 
 # RUN CONFIG #
 
+prj_strgy set_value -strategy Strategy1 lse_frequency=60
+# prj_strgy set_value -strategy Strategy1 {syn_pipelining_retiming=Pipelining and Retiming} syn_frequency=60
+prj_strgy set_value -strategy Strategy1 map_reg_retiming=True
+prj_strgy set_value -strategy Strategy1 lse_opt_goal=Timing
+# prj_strgy set_value -strategy Strategy1 syn_res_sharing=False
+prj_strgy set_value -strategy Strategy1 lse_res_sharing=False
+
 prj_run Map -impl $impl_name -task MapTrace
 prj_run PAR -impl $impl_name -task PARTrace
 prj_run PAR -impl $impl_name -task IOTiming

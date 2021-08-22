@@ -6,6 +6,9 @@ entity aes_ip is
 	port (
 		clk: in std_logic;
 		rst: in std_logic;
+		-- DEBUG
+		int_opcode: out std_logic_vector(5 downto 0);
+
 		en: in std_logic;
 		opcode: in std_logic_vector(OPCODE_SIZE-1 downto 0);
 		ack: in std_logic;
@@ -27,6 +30,9 @@ architecture behavioral of aes_ip is
 		port (
 			clk: in std_logic;
 			rst: in std_logic;
+
+			-- DEBUG
+			int_opcode: out std_logic_vector(5 downto 0);
 
 			-- IP manager signals
 			en: in std_logic;
@@ -118,6 +124,9 @@ begin
 		port map (
 			clk => clk,
 			rst => rst,
+
+			-- DEBUG
+			int_opcode => int_opcode,
 
 			-- IP manager signals
 			en => en,

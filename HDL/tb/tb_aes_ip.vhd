@@ -56,21 +56,21 @@ architecture test of FPGA_testbench is
 	type rom_array_128 is array(0 to 10) of std_logic_vector(127 downto 0);
 
 	constant enc_rom_256 : rom_array_256 := (
-		X"000102030405060708090a0b0c0d0e0f",
-		X"101112131415161718191a1b1c1d1e1f",
-		X"a573c29fa176c498a97fce93a572c09c",
-		X"1651a8cd0244beda1a5da4c10640bade",
-		X"ae87dff00ff11b68a68ed5fb03fc1567",
-		X"6de1f1486fa54f9275f8eb5373b8518d",
-		X"c656827fc9a799176f294cec6cd5598b",
-		X"3de23a75524775e727bf9eb45407cf39",
-		X"0bdc905fc27b0948ad5245a4c1871c2f",
-		X"45f5a66017b2d387300d4d33640a820a",
-		X"7ccff71cbeb4fe5413e6bbf0d261a7df",
-		X"f01afafee7a82979d7a5644ab3afe640",
-		X"2541fe719bf500258813bbd55a721c0a",
-		X"4e5a6699a9f24fe07e572baacdf8cdea",
-		X"24fc79ccbf0979e9371ac23c6d68de36"
+		X"0c0d0e0f08090a0b0405060700010203",
+		X"1c1d1e1f18191a1b1415161710111213",
+		X"a572c09ca97fce93a176c498a573c29f",
+		X"0640bade1a5da4c10244beda1651a8cd",
+		X"03fc1567a68ed5fb0ff11b68ae87dff0",
+		X"73b8518d75f8eb536fa54f926de1f148",
+		X"6cd5598b6f294cecc9a79917c656827f",
+		X"5407cf3927bf9eb4524775e73de23a75",
+		X"c1871c2fad5245a4c27b09480bdc905f",
+		X"640a820a300d4d3317b2d38745f5a660",
+		X"d261a7df13e6bbf0beb4fe547ccff71c",
+		X"b3afe640d7a5644ae7a82979f01afafe",
+		X"5a721c0a8813bbd59bf500252541fe71",
+		X"cdf8cdea7e572baaa9f24fe04e5a6699",
+		X"6d68de36371ac23cbf0979e924fc79cc"
 		); 
 
 	constant dec_rom_256 : rom_array_256 := (
@@ -151,8 +151,8 @@ architecture test of FPGA_testbench is
 		X"000102030405060708090a0b0c0d0e0f"
 		); 
 
-	constant plaintext: std_logic_vector(127 downto 0) := X"00112233445566778899aabbccddeeff";
-	constant cyphertext_256 : std_logic_vector(127 downto 0) := X"8ea2b7ca516745bfeafc49904b496089";
+	constant plaintext: std_logic_vector(127 downto 0) := X"eeffccddaabb88996677445522330011";
+	constant cyphertext_256 : std_logic_vector(127 downto 0) := X"60894b494990eafc45bf5167b7ca8ea2";
 	constant cyphertext_192 : std_logic_vector(127 downto 0) := X"dda97ca4864cdfe06eaf70a0ec0d7191"; 
 	constant cyphertext_128 : std_logic_vector(127 downto 0) := X"69c4e0d86a7b0430d8cdb78070b4c55a"; 
 		
