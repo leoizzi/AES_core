@@ -151,8 +151,8 @@ architecture test of FPGA_testbench is
 		X"000102030405060708090a0b0c0d0e0f"
 		); 
 
-	constant plaintext: std_logic_vector(127 downto 0) := X"eeffccddaabb88996677445522330011";
-	constant cyphertext_256 : std_logic_vector(127 downto 0) := X"60894b494990eafc45bf5167b7ca8ea2";
+	constant plaintext: std_logic_vector(127 downto 0) := X"ffeeddccbbaa99887766554433221100";
+	constant cyphertext_256 : std_logic_vector(127 downto 0) := X"8960494b9049fceabf456751cab7a28e";
 	constant cyphertext_192 : std_logic_vector(127 downto 0) := X"dda97ca4864cdfe06eaf70a0ec0d7191"; 
 	constant cyphertext_128 : std_logic_vector(127 downto 0) := X"69c4e0d86a7b0430d8cdb78070b4c55a"; 
 		

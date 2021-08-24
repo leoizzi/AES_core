@@ -423,7 +423,9 @@ begin
 				buf_en <= '1';
 				buf_rw <= '1';
 				buf_addr <= "000001";
-				next_state <= CORE_DONE;
+				if (en = '0') then
+					next_state <= IDLE;
+				end if;
 
 			when WAIT_TR_CLOSE => 
 				if (en = '0') then
