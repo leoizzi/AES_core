@@ -38,9 +38,10 @@
  *  \version SEcube SDK 1.5.1
  *  \brief Device inizialization and main loop.
  */
-
+#include <stdlib.h>
 
 #include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_rng.h"
 #include "adc.h"
 #include "crc.h"
 #include "dma.h"
@@ -59,6 +60,7 @@
 #include "Fpgaipm.h"
 #include "AES_FPGA.h"
 #include "se3_core.h"
+#include "uart_debug.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -83,6 +85,20 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN 0 */
 char buffer[128];
 B5_tAesCtx ctx;
+extern RNG_HandleTypeDef hrng;
+
+/*
+ * Create random vectors of size bytes
+ */
+static void generate_rnd_vector(uint8_t *v, size_t size)
+{
+	srand(HAL_GetTick());
+	for (size_t i = 0; i < size; i++) {
+		v[i] = (uint8_t)rand();
+	}
+}
+
+
 /* USER CODE END 0 */
 
 int main(void)
@@ -103,90 +119,147 @@ int main(void)
 
 	//Add following lines when using Keil to flash the USBStick
 	// Remapping Interrupt Vector (overload the USB Loader Interrupt Vector)		
-	//uint32_t i;																										
-	//for (i = 0; i < 256; i++) {
-  //  vectorTable_RAM[i] = __Vectors[i];            /* copy vector table to RAM */
-  //}																										
-	
-  //__disable_irq();
-  //SCB->VTOR = (uint32_t)&vectorTable_RAM;
-  //__DSB();
-  //__enable_irq();
+//	uint32_t i;
+//	for (i = 0; i < 256; i++) {
+//		vectorTable_RAM[i] = __Vectors[i];            /* copy vector table to RAM */
+//	}
+//
+//  __disable_irq();
+//  SCB->VTOR = (uint32_t)&vectorTable_RAM;
+//  __DSB();
+//  __enable_irq();
 	
 	
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
 	MX_USART1_UART_Init();
-	//MX_DMA_Init();
-	//MX_ADC1_Init();
-	//MX_FMC_Init();
-	/*MX_I2C2_Init();
+	MX_DMA_Init();
+	MX_ADC1_Init();
+	// MX_FMC_Init();
+	MX_I2C2_Init();
 	MX_SDIO_SD_Init();
 	MX_SPI5_Init();
 	MX_TIM4_Init();
-	MX_USART1_UART_Init();
-	MX_USART6_SMARTCARD_Init();
-	MX_USB_DEVICE_Init();
+	// MX_USART1_UART_Init();
+	// MX_USART6_SMARTCARD_Init();
+	// MX_USB_DEVICE_Init();
 	MX_CRC_Init();
-	MX_RNG_Init();*/
+	MX_RNG_Init();
 	/* USER CODE BEGIN */
 	uint8_t rcvd = 0;
 	while (rcvd != 'a'){
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "Insert 'a' to start: \r");
 		HAL_UART_Receive(&huart1, &rcvd, 1, HAL_MAX_DELAY);
-		sprintf(buffer, "Press 'a' to start \r");
-		HAL_UART_Transmit(&huart1, (uint8_t*) buffer, sizeof(buffer), HAL_MAX_DELAY);
 	}
-	sprintf(buffer, "Starting FPGA init\n\r");
-	HAL_UART_Transmit(&huart1, (uint8_t*) buffer, sizeof(buffer), HAL_MAX_DELAY);
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "\r\n");
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA initialization\n\r");
 	FPGA_IPM_init();
 
-	sprintf(buffer, "Programming FPGA\n\r");
-	HAL_UART_Transmit(&huart1, (uint8_t*) buffer, sizeof(buffer), HAL_MAX_DELAY);
-	B5_FPGA_Programming();
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA programming\n\r");
+	// B5_FPGA_Programming();
 	HAL_GPIO_WritePin(GPIOG, FPGA_RST_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOG, FPGA_RST_Pin, GPIO_PIN_RESET);
 
 	HAL_Delay(500);
-	sprintf(buffer, "FPGA programmed\n\r");
-	HAL_UART_Transmit(&huart1, (uint8_t*) buffer, sizeof(buffer), HAL_MAX_DELAY);
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA programmed\n\r");
 
-	uint8_t plaintxt[] = { 0xff, 0xbb, 0x77, 0x33, 0xee, 0xaa, 0x66, 0x22, 0xdd, 0x99, 0x55, 0x11, 0xcc, 0x88, 0x44, 0x00 };
-	uint8_t key[] = { 0x0f, 0x0b, 0x07, 0x03, 0x0e, 0x0a, 0x06, 0x02, 0x0d, 0x09, 0x05, 0x01, 0x0c, 0x08, 0x04, 0x00 };
+#define SIZE 256
+	uint8_t fpga_input[SIZE], sw_input[SIZE];
+	uint8_t fpga_output[SIZE], sw_output[SIZE];
+	uint8_t key[B5_AES_256];
+	uint8_t IV[B5_AES_IV_SIZE];
+	B5_tAesCtx fpga_ctx, sw_ctx;
 
-	uint8_t cyphertext[16];
+	// generate the keys
+	generate_rnd_vector(key, B5_AES_256);
 
-	int r = AES_FPGA_setup(&ctx, key, sizeof(key), B5_AES256_CTR);
-	if (r  == AES_KEY_INIT_ERROR ) {
-		sprintf(buffer, "Error init the context \n\r");
-		HAL_UART_Transmit(&huart1, (uint8_t*) buffer, sizeof(buffer), HAL_MAX_DELAY);
-		goto error;
-	} else if (r == FPGA_ERROR){
-		sprintf(buffer, "Error FPGA share key   \n\r");
-		HAL_UART_Transmit(&huart1, (uint8_t*) buffer, sizeof(buffer), HAL_MAX_DELAY);
-		goto error;
-	}
-	memset(buffer, 0, sizeof(buffer));
+	// generate plain text
+	generate_rnd_vector(fpga_input, SIZE);
+	memcpy(fpga_input, sw_input, SIZE);
 
-	sprintf(buffer, "Init OK                     \n\r");
-	HAL_UART_Transmit(&huart1, (uint8_t*) buffer, sizeof(buffer), HAL_MAX_DELAY);
-	memset(buffer, 0, sizeof(buffer));
-	if ( test_AES_FPGA_encrypt(&ctx, plaintxt, sizeof(plaintxt), cyphertext) != AES_FPGA_RES_OK) {
-			sprintf(buffer, "Error encryption     \n\r");
-			HAL_UART_Transmit(&huart1, (uint8_t*) buffer, sizeof(buffer), HAL_MAX_DELAY);
-			goto error;
-	}
-	memset(buffer, 0, sizeof(buffer));
+	// generate IV
+	generate_rnd_vector(IV, B5_AES_IV_SIZE);
 
-	for (int i=0; i<sizeof(cyphertext); i++){
-		sprintf(buffer, "0x%02x \n\r",cyphertext[i]);
-		HAL_UART_Transmit(&huart1, (uint8_t*) buffer, sizeof(buffer), HAL_MAX_DELAY);
-		memset(buffer, 0, sizeof(buffer));
+	// setup encryption
+
+	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_ECB_ENC) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+		return 0;
 	}
 
+	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_256, B5_AES256_ECB_ENC) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+		return 0;
+	}
+
+	// IV setup
+
+	if (AES_FPGA_SetIV(&fpga_ctx, IV) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA IV setup failed\n\r");
+	}
+
+	if (B5_Aes256_SetIV(&sw_ctx, IV) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW IV setup failed\n\r");
+	}
+
+	// Encrypt
+
+	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE/B5_AES_BLK_SIZE, SIZE) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW encryption failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE; i++) {
+		if (fpga_output[i] != sw_output[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_output = 0x%02x while sw_output = 0x%02x\n\r", i, fpga_output[i], sw_output[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Encryption successful\n\r");
+
+	// setup decryption
+
+	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_ECB_DEC) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_256, B5_AES256_ECB_DEC) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+		return 0;
+	}
+
+	// decryption
+
+	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE/B5_AES_BLK_SIZE, SIZE) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW decryption failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE; i++) {
+		if (fpga_input[i] != sw_input[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_input = 0x%02x while sw_input = 0x%02x\n\r", i, fpga_input[i], sw_input[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Decryption successful\n\r");
 	/*device_init();
 	device_loop();*/
 	/* USER CODE END  */
-error:
 	return 0;
 }
 

@@ -1,10 +1,3 @@
-/*
- * AES_FPGA.h
- *
- *  Created on: 9 giu 2021
- *      Author: lollo
- */
-
 #ifndef INC_AES_FPGA_H_
 #define INC_AES_FPGA_H_
 
@@ -28,8 +21,11 @@ typedef enum {
 }aes_mode_t;
 
 /* AES OPERATING MODE */
-#define AES_MODE_ENCRYPT (0x00)
-#define AES_MODE_DECRYPT (0x01)
+enum aes_op_t {
+	AES_OP_ENCRYPT,
+	AES_OP_DECRYPT
+};
+typedef enum aes_op_t aes_op_t;
 
 /* COSTANTS */
 #define FPGA_LOCK 0xFFFF
@@ -55,6 +51,8 @@ typedef enum {
 #define ALG_SEL_ADDR            (0x01 << 3)
 #define WRITE_BASE_ADDR			(0x01 << 3)
 
+#define SIZE_MASK (B5_AES_BLK_SIZE - 1)
+
 /* RETURN TYPE */
 #define AES_FPGA_RES_OK				    ( 1)
 #define FPGA_TRANSACTION_OK				( 2)
@@ -64,31 +62,37 @@ typedef enum {
 #define AES_KEY_INIT_ERROR 			    (-4)
 #define FPGA_ERROR						(-5)
 
-/** \brief Initialize the context for the encription.
+/** \brief Initialize the context for the encryption.
  *  \param ctx Context to be initialized. (Free context).
  *  \param Key pointer.
- *  \param keySize 128,192 or 256 bit. This parameter is used to identify the AES MODE.
+ *  \param keySize 128,192 or 256 bit.
  *  \param aesMode AES mode.
  *  \result ctx context has been initialized.
  *  \return Returns AES_FPGA_RES_OK on success, error code on error.
  */
 AES_FPGA_RETURN_CODE AES_FPGA_setup(B5_tAesCtx *ctx, const uint8_t *Key, int16_t keySize, aes_mode_t aes_mode);
 
-/** \brief Encrypt data using FPGA accelaration.
- *  \param  ctx Context already initialized.
- *  \param  plaintext 128 bit plain text.
- *  \result cyphertext 128 bit cypher text.
- *  \return Returns AES_FPGA_RES_OK on success, error code on error.
+/**
+ *
+ * @brief Set the IV for the current AES context.
+ * @param ctx Pointer to the AES data structure to be initialized.
+ * @param IV Pointer to the IV.
+ * @return See aes256.h for the error codes
  */
-AES_FPGA_RETURN_CODE test_AES_FPGA_encrypt(B5_tAesCtx *ctx, uint8_t *plaintext, uint8_t plaintextSize, uint8_t *cyphertext);
+int32_t AES_FPGA_SetIV(B5_tAesCtx *ctx, const uint8_t *IV);
 
-/** \brief Decrypt data using FPGA accelaration.
- *  \param  ctx Context already initialized.
- *  \param  cyphertext 128 bit cypher text.
- *  \result plaintext 128 bit plain text.
- *  \return Returns AES_FPGA_RES_OK on success, error code on error.
+/**
+ *
+ * @brief Encrypt/Decrypt data based on the status of current AES context. If the blocks do not fit in multiples of 128-bits it also performs padding.
+ * @param ctx Pointer to the current AES context.
+ * @param encData Encrypted data.
+ * @param clrData Clear data.
+ * @param nBlk Number of AES blocks to process.
+ * @param data_len Size of the data to process.
+ * @return Returns AES_FPGA_RES_OK on success, error code on error.
  */
-AES_FPGA_RETURN_CODE test_AES_FPGA_decrypt(B5_tAesCtx *ctx, uint8_t *cyphertext, uint8_t cyphertextSize, uint8_t *plaintext);
+AES_FPGA_RETURN_CODE AES_FPGA_Update(B5_tAesCtx *ctx, uint8_t *encData, uint8_t *clrData, uint16_t nBlk, uint32_t data_len);
+
 #endif /* INC_AES_FPGA_H_ */
 
 
