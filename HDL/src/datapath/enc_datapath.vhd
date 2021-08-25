@@ -8,13 +8,13 @@ entity enc_datapath is
 		rst: in std_logic;
 		
 		start: in std_logic;
-	   	end_block: out std_logic;
+	   end_block: out std_logic;
 
-	   	first_round: in std_logic;
-	   	last_round: in std_logic;
+	   first_round: in std_logic;
+	   last_round: in std_logic;
 
-	   	-- enable for the register which is input to the SubBytes step
-	   	en_ff2: in std_logic;
+	   -- enable for the register which is input to the SubBytes step
+	   en_ff2: in std_logic;
 
 		data_in: in std_logic_vector(127 downto 0);
 		key: in std_logic_vector(127 downto 0);
@@ -99,9 +99,9 @@ architecture structural of enc_datapath is
 	
 	signal sub_bytes_en: std_logic_vector(1 downto 0);
 	signal look_0_addr, look_1_addr, look_2_addr, look_3_addr: std_logic_vector(7 downto 0);
-    signal look_4_addr, look_5_addr, look_6_addr, look_7_addr: std_logic_vector(7 downto 0);
+   signal look_4_addr, look_5_addr, look_6_addr, look_7_addr: std_logic_vector(7 downto 0);
     
-    signal look_0_data, look_1_data, look_2_data, look_3_data: std_logic_vector(7 downto 0);
+   signal look_0_data, look_1_data, look_2_data, look_3_data: std_logic_vector(7 downto 0);
 	signal look_4_data, look_5_data, look_6_data, look_7_data: std_logic_vector(7 downto 0);
 	signal sub_bytes_data_out: std_logic_vector(63 downto 0);
 	signal sub_bytes_data_in: std_logic_vector(127 downto 0);

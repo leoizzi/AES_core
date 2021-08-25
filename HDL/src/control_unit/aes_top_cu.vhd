@@ -84,12 +84,12 @@ architecture behavioral of aes_top_cu is
 	constant AES_192_N_KEYS : std_logic_vector(3 downto 0) := "1101"; 
 	constant AES_256_N_KEYS : std_logic_vector(3 downto 0) := "1111"; 
 
-	constant ENC_AES_128_ROUNDS : std_logic_vector(3 downto 0) := "1001";
-	constant ENC_AES_192_ROUNDS : std_logic_vector(3 downto 0) := "1011";
-	constant ENC_AES_256_ROUNDS : std_logic_vector(3 downto 0) := "1101";
-	constant DEC_AES_128_ROUNDS : std_logic_vector(3 downto 0) := "1010";
-	constant DEC_AES_192_ROUNDS : std_logic_vector(3 downto 0) := "1100";
-	constant DEC_AES_256_ROUNDS : std_logic_vector(3 downto 0) := "1110"; 
+	constant AES_128_ROUNDS : std_logic_vector(3 downto 0) := "1001";
+	constant AES_192_ROUNDS : std_logic_vector(3 downto 0) := "1011";
+	constant AES_256_ROUNDS : std_logic_vector(3 downto 0) := "1101";
+	--constant DEC_AES_128_ROUNDS : std_logic_vector(3 downto 0) := "1001";
+	--constant DEC_AES_192_ROUNDS : std_logic_vector(3 downto 0) := "1011";
+	--constant DEC_AES_256_ROUNDS : std_logic_vector(3 downto 0) := "1101"; 
 
 	signal curr_state, next_state: std_logic_vector(OPCODE_SIZE-1 downto 0);
 	signal curr_data_reg_en, next_data_reg_en: std_logic_vector(8 downto 0);
@@ -307,13 +307,13 @@ begin
 				ram_addr <= key_idx_enc;
 				case (curr_n_keys) is
 					when AES_128_N_KEYS => 
-						n_rounds <= ENC_AES_128_ROUNDS;
+						n_rounds <= AES_128_ROUNDS;
 
 					when AES_192_N_KEYS => 
-						n_rounds <= ENC_AES_192_ROUNDS;
+						n_rounds <= AES_192_ROUNDS;
 
 					when AES_256_N_KEYS => 
-						n_rounds <= ENC_AES_256_ROUNDS;
+						n_rounds <= AES_256_ROUNDS;
 
 					when others => 
 						err <= '1';
@@ -329,13 +329,13 @@ begin
 				ram_addr <= key_idx_dec;
 				case (curr_n_keys) is
 					when AES_128_N_KEYS => 
-						n_rounds <= DEC_AES_128_ROUNDS;
+						n_rounds <= AES_128_ROUNDS;
 
 					when AES_192_N_KEYS => 
-						n_rounds <= DEC_AES_192_ROUNDS;
+						n_rounds <= AES_192_ROUNDS;
 
 					when AES_256_N_KEYS => 
-						n_rounds <= DEC_AES_256_ROUNDS;
+						n_rounds <= AES_256_ROUNDS;
 
 					when others => 
 						err <= '1';

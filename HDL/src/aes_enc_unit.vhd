@@ -20,7 +20,7 @@ entity aes_enc_unit is
 end entity aes_enc_unit;
 
 architecture structural of aes_enc_unit is
-	component aes_cu_enc is
+	component aes_cu is
 		port (
 			clk: in std_logic;
 			rst: in std_logic;
@@ -46,7 +46,7 @@ architecture structural of aes_enc_unit is
 
 			key_idx: out std_logic_vector(3 downto 0)
 		);
-	end component aes_cu_enc;
+	end component aes_cu;
 
 	component enc_datapath is
 		port (
@@ -70,7 +70,7 @@ architecture structural of aes_enc_unit is
 
 	signal first_round, last_round, start_block, end_block, en_ff2: std_logic;
 begin
-	cu: aes_cu_enc
+	cu: aes_cu
 		port map (
 			clk => clk,
 			rst => rst,

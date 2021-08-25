@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 -- AES encryption CU
-entity aes_cu_enc is
+entity aes_cu is
 	port (
 		clk: in std_logic;
 		rst: in std_logic;
@@ -28,9 +28,9 @@ entity aes_cu_enc is
 
 		key_idx: out std_logic_vector(3 downto 0)
 	);
-end entity aes_cu_enc;
+end entity aes_cu;
 
-architecture behavioral of aes_cu_enc is
+architecture behavioral of aes_cu is
 	component reg_en is
 		generic (
 			N: integer := 32
