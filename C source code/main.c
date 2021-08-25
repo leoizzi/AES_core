@@ -64,7 +64,9 @@
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
-
+#define SIZE_256 256
+#define SIZE_192 192
+#define SIZE_128 128
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -79,7 +81,14 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
+//ECB MODE.
+static int test_ECB_256();
+static int test_ECB_192();
+static int test_ECB_128();
+//CBC MODE.
+static int test_CBC_256();
+static int test_CBC_192();
+static int test_CBC_128();
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -165,98 +174,17 @@ int main(void)
 	HAL_Delay(500);
 	PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA programmed\n\r");
 
-#define SIZE 256
-	uint8_t fpga_input[SIZE], sw_input[SIZE];
-	uint8_t fpga_output[SIZE], sw_output[SIZE];
-	uint8_t key[B5_AES_256];
-	uint8_t IV[B5_AES_IV_SIZE];
-	B5_tAesCtx fpga_ctx, sw_ctx;
-
-	// generate the keys
-	generate_rnd_vector(key, B5_AES_256);
-
-	// generate plain text
-	generate_rnd_vector(fpga_input, SIZE);
-	memcpy(fpga_input, sw_input, SIZE);
-
-	// generate IV
-	generate_rnd_vector(IV, B5_AES_IV_SIZE);
-
-	// setup encryption
-
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_ECB_ENC) != AES_FPGA_RES_OK) {
-		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+//ECB MODE TEST SUITE.
+	if (test_ECB_256() == 0)
 		return 0;
-	}
-
-	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_256, B5_AES256_ECB_ENC) != B5_AES256_RES_OK) {
-		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+	if (test_ECB_192() == 0)
 		return 0;
-	}
-
-	// IV setup
-
-	if (AES_FPGA_SetIV(&fpga_ctx, IV) != B5_AES256_RES_OK) {
-		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA IV setup failed\n\r");
-	}
-
-	if (B5_Aes256_SetIV(&sw_ctx, IV) != B5_AES256_RES_OK) {
-		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW IV setup failed\n\r");
-	}
-
-	// Encrypt
-
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE/B5_AES_BLK_SIZE, SIZE) != AES_FPGA_RES_OK) {
-		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
+	if (test_ECB_128() == 0)
 		return 0;
-	}
 
-	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
-		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW encryption failed\n\r");
+//CBC MODE TEST SUITE.
+	if (test_CBC_128() == 0)
 		return 0;
-	}
-
-	for (int i = 0; i < SIZE; i++) {
-		if (fpga_output[i] != sw_output[i]) {
-			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_output = 0x%02x while sw_output = 0x%02x\n\r", i, fpga_output[i], sw_output[i]);
-			return 0;
-		}
-	}
-
-	PRINT_DBG(huart1, buffer, sizeof(buffer), "Encryption successful\n\r");
-
-	// setup decryption
-
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_ECB_DEC) != AES_FPGA_RES_OK) {
-		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
-		return 0;
-	}
-
-	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_256, B5_AES256_ECB_DEC) != B5_AES256_RES_OK) {
-		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
-		return 0;
-	}
-
-	// decryption
-
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE/B5_AES_BLK_SIZE, SIZE) != AES_FPGA_RES_OK) {
-		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
-		return 0;
-	}
-
-	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
-		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW decryption failed\n\r");
-		return 0;
-	}
-
-	for (int i = 0; i < SIZE; i++) {
-		if (fpga_input[i] != sw_input[i]) {
-			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_input = 0x%02x while sw_input = 0x%02x\n\r", i, fpga_input[i], sw_input[i]);
-			return 0;
-		}
-	}
-
-	PRINT_DBG(huart1, buffer, sizeof(buffer), "Decryption successful\n\r");
 	/*device_init();
 	device_loop();*/
 	/* USER CODE END  */
@@ -308,6 +236,397 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+int test_ECB_256(){
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Start test AES ECB 256\n\r");
+	uint8_t fpga_input[SIZE_256], sw_input[SIZE_256];
+	uint8_t fpga_output[SIZE_256], sw_output[SIZE_256];
+	uint8_t key[B5_AES_256];
+	uint8_t IV[B5_AES_IV_SIZE];
+	B5_tAesCtx fpga_ctx, sw_ctx;
+
+	// generate the keys
+	generate_rnd_vector(key, B5_AES_256);
+
+	// generate plain text
+	generate_rnd_vector(fpga_input, SIZE_256);
+	memcpy(fpga_input, sw_input, SIZE_256);
+
+	// generate IV
+	generate_rnd_vector(IV, B5_AES_IV_SIZE);
+
+	// setup encryption
+
+	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_ECB_ENC) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_256, B5_AES256_ECB_ENC) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+		return 0;
+	}
+
+	// IV setup
+
+	if (AES_FPGA_SetIV(&fpga_ctx, IV) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA IV setup failed\n\r");
+	}
+
+	if (B5_Aes256_SetIV(&sw_ctx, IV) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW IV setup failed\n\r");
+	}
+
+	// Encrypt
+
+	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE_256/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW encryption failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE_256; i++) {
+		if (fpga_output[i] != sw_output[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_output = 0x%02x while sw_output = 0x%02x\n\r", i, fpga_output[i], sw_output[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Encryption successful\n\r");
+
+	// setup decryption
+
+	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_ECB_DEC) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_256, B5_AES256_ECB_DEC) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+		return 0;
+	}
+
+	// decryption
+
+	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE_256/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW decryption failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE_256; i++) {
+		if (fpga_input[i] != sw_input[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_input = 0x%02x while sw_input = 0x%02x\n\r", i, fpga_input[i], sw_input[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Decryption successful\n\r");
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "\n\r");
+	return 1;
+}
+
+int test_ECB_192(){
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Start test AES ECB 192\n\r");
+	uint8_t fpga_input[SIZE_256], sw_input[SIZE_256];
+	uint8_t fpga_output[SIZE_256], sw_output[SIZE_256];
+	uint8_t key[B5_AES_192];
+	uint8_t IV[B5_AES_IV_SIZE];
+	B5_tAesCtx fpga_ctx, sw_ctx;
+
+	// generate the keys
+	generate_rnd_vector(key, B5_AES_256);
+
+	// generate plain text
+	generate_rnd_vector(fpga_input, SIZE_256);
+	memcpy(fpga_input, sw_input, SIZE_256);
+
+	// generate IV
+	generate_rnd_vector(IV, B5_AES_IV_SIZE);
+
+	// setup encryption
+
+	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_ECB_ENC) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_192, B5_AES256_ECB_ENC) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+		return 0;
+	}
+
+	// IV setup
+
+	if (AES_FPGA_SetIV(&fpga_ctx, IV) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA IV setup failed\n\r");
+	}
+
+	if (B5_Aes256_SetIV(&sw_ctx, IV) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW IV setup failed\n\r");
+	}
+
+	// Encrypt
+
+	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE_256/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW encryption failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE_256; i++) {
+		if (fpga_output[i] != sw_output[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_output = 0x%02x while sw_output = 0x%02x\n\r", i, fpga_output[i], sw_output[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Encryption successful\n\r");
+
+	// setup decryption
+
+	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_ECB_DEC) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_192, B5_AES256_ECB_DEC) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+		return 0;
+	}
+
+	// decryption
+
+	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE_256/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW decryption failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE_256; i++) {
+		if (fpga_input[i] != sw_input[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_input = 0x%02x while sw_input = 0x%02x\n\r", i, fpga_input[i], sw_input[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Decryption successful\n\r");
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "\n\r");
+	return 1;
+}
+
+int test_ECB_128(){
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Start test AES ECB 256\n\r");
+	uint8_t fpga_input[SIZE_256], sw_input[SIZE_256];
+	uint8_t fpga_output[SIZE_256], sw_output[SIZE_256];
+	uint8_t key[B5_AES_256];
+	uint8_t IV[B5_AES_IV_SIZE];
+	B5_tAesCtx fpga_ctx, sw_ctx;
+
+	// generate the keys
+	generate_rnd_vector(key, B5_AES_256);
+
+	// generate plain text
+	generate_rnd_vector(fpga_input, SIZE_256);
+	memcpy(fpga_input, sw_input, SIZE_256);
+
+	// generate IV
+	generate_rnd_vector(IV, B5_AES_IV_SIZE);
+
+	// setup encryption
+
+	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_ECB_ENC) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_128, B5_AES256_ECB_ENC) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+		return 0;
+	}
+
+	// IV setup
+
+	if (AES_FPGA_SetIV(&fpga_ctx, IV) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA IV setup failed\n\r");
+	}
+
+	if (B5_Aes256_SetIV(&sw_ctx, IV) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW IV setup failed\n\r");
+	}
+
+	// Encrypt
+
+	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE_256/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW encryption failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE_256; i++) {
+		if (fpga_output[i] != sw_output[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_output = 0x%02x while sw_output = 0x%02x\n\r", i, fpga_output[i], sw_output[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Encryption successful\n\r");
+
+	// setup decryption
+
+	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_ECB_DEC) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_128, B5_AES256_ECB_DEC) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+		return 0;
+	}
+
+	// decryption
+
+	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE_256/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW decryption failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE_256; i++) {
+		if (fpga_input[i] != sw_input[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_input = 0x%02x while sw_input = 0x%02x\n\r", i, fpga_input[i], sw_input[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Decryption successful\n\r");
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "\n\r");
+	return 1;
+}
+
+int test_CBC_128(){
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Start test AES CBC 128\n\r");
+	uint8_t fpga_input[SIZE_256], sw_input[SIZE_256];
+	uint8_t fpga_output[SIZE_256], sw_output[SIZE_256];
+	uint8_t key[B5_AES_128];
+	uint8_t IV[B5_AES_IV_SIZE];
+	B5_tAesCtx fpga_ctx, sw_ctx;
+
+	// generate the keys
+	generate_rnd_vector(key, B5_AES_256);
+
+	// generate plain text
+	generate_rnd_vector(fpga_input, SIZE_256);
+	memcpy(fpga_input, sw_input, SIZE_256);
+
+	// generate IV
+	generate_rnd_vector(IV, B5_AES_IV_SIZE);
+
+	// setup encryption
+
+	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_CBC_ENC) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_128, B5_AES256_CBC_ENC) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+		return 0;
+	}
+
+	// IV setup
+
+	if (AES_FPGA_SetIV(&fpga_ctx, IV) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA IV setup failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_SetIV(&sw_ctx, IV) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW IV setup failed\n\r");
+		return 0;
+	}
+
+	// Encrypt
+
+	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE_256/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW encryption failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE_256; i++) {
+		if (fpga_output[i] != sw_output[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_output = 0x%02x while sw_output = 0x%02x\n\r", i, fpga_output[i], sw_output[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Encryption successful\n\r");
+
+	// setup decryption
+
+	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_CBC_DEC) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Init(&sw_ctx, key, B5_AES_128, B5_AES256_CBC_DEC) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+		return 0;
+	}
+
+	// decryption
+
+	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
+		return 0;
+	}
+
+	if (B5_Aes256_Update(&sw_ctx, sw_output, sw_input, SIZE_256/B5_AES_BLK_SIZE) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW decryption failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE_256; i++) {
+		if (fpga_input[i] != sw_input[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_input = 0x%02x while sw_input = 0x%02x\n\r", i, fpga_input[i], sw_input[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Decryption successful\n\r");
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "\n\r");
+	return 1;
+}
+
+
 
 /* USER CODE END 4 */
 
