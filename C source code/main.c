@@ -101,6 +101,8 @@ static int test_CFB_128();
 static int test_OFB_256();
 static int test_OFB_192();
 static int test_OFB_128();
+// CMAC
+static int test_AES_CMAC();
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -222,6 +224,9 @@ int main(void)
 		return 0;
 	if (test_OFB_128() == 0)
 		return 0;
+// CMAC TEST SUITE
+	if (test_AES_CMAC() == 0)
+		return 0;
 	/*device_init();
 	device_loop();*/
 	/* USER CODE END  */
@@ -316,7 +321,7 @@ int test_ECB_256(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -349,7 +354,7 @@ int test_ECB_256(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -413,7 +418,7 @@ int test_ECB_192(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -446,7 +451,7 @@ int test_ECB_192(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -510,7 +515,7 @@ int test_ECB_128(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -543,7 +548,7 @@ int test_ECB_128(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -610,7 +615,7 @@ int test_CBC_256(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -643,7 +648,7 @@ int test_CBC_256(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -709,7 +714,7 @@ int test_CBC_192(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -742,7 +747,7 @@ int test_CBC_192(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -808,7 +813,7 @@ int test_CBC_128(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -841,7 +846,7 @@ int test_CBC_128(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -906,7 +911,7 @@ int test_CTR_256(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -939,7 +944,7 @@ int test_CTR_256(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -1003,7 +1008,7 @@ int test_CTR_192(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -1036,7 +1041,7 @@ int test_CTR_192(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -1100,7 +1105,7 @@ int test_CTR_128(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -1133,7 +1138,7 @@ int test_CTR_128(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -1198,7 +1203,7 @@ int test_CFB_256(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -1231,7 +1236,7 @@ int test_CFB_256(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -1295,7 +1300,7 @@ int test_CFB_192(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -1328,7 +1333,7 @@ int test_CFB_192(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -1392,7 +1397,7 @@ int test_CFB_128(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -1425,7 +1430,7 @@ int test_CFB_128(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -1491,7 +1496,7 @@ int test_OFB_256(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -1524,7 +1529,7 @@ int test_OFB_256(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -1588,7 +1593,7 @@ int test_OFB_192(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -1621,7 +1626,7 @@ int test_OFB_192(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -1685,7 +1690,7 @@ int test_OFB_128(){
 
 	// Encrypt
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA encryption failed\n\r");
 		return 0;
 	}
@@ -1718,7 +1723,7 @@ int test_OFB_128(){
 
 	// decryption
 
-	if (AES_FPGA_Update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_update(&fpga_ctx, fpga_output, fpga_input, SIZE_256/B5_AES_BLK_SIZE, SIZE_256) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA decryption failed\n\r");
 		return 0;
 	}
@@ -1736,6 +1741,91 @@ int test_OFB_128(){
 	}
 
 	PRINT_DBG(huart1, buffer, sizeof(buffer), "Decryption successful\n\r");
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "\n\r");
+	return 1;
+}
+
+int test_AES_CMAC(){
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Start test AES CMAC\n\r");
+	uint8_t fpga_input[SIZE_256], sw_input[SIZE_256];
+	uint8_t fpga_output[SIZE_256], sw_output[SIZE_256];
+	uint8_t key[B5_AES_256];
+	B5_tCmacAesCtx fpga_ctx, sw_ctx;
+
+	// generate the keys
+	generate_rnd_vector(key, B5_AES_256);
+
+	// generate plain text
+	generate_rnd_vector(fpga_input, SIZE_256);
+	memcpy(fpga_input, sw_input, SIZE_256);
+
+	// setup encryption
+	if (AES_FPGA_Cmac_Init(&fpga_ctx, key, B5_AES_256) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
+		return 0;
+	}
+
+	if (B5_CmacAes256_Init(&sw_ctx, key, B5_AES_256) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW setup failed\n\r");
+		return 0;
+	}
+
+	// Encrypt
+
+	if (AES_FPGA_Cmac_Update(&fpga_ctx, fpga_input, SIZE_256) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA update failed\n\r");
+		return 0;
+	}
+
+	if (B5_CmacAes256_Update(&sw_ctx, sw_input, SIZE_256) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW update failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE_256; i++) {
+		if (fpga_input[i] != sw_input[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_output = 0x%02x while sw_output = 0x%02x\n\r", i, fpga_output[i], sw_output[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Update successful\n\r");
+
+	if (AES_FPGA_Cmac_Sign(fpga_input, SIZE_256, key, B5_AES_256, fpga_output) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA signature failed\n\r");
+		return 0;
+	}
+
+	if (B5_CmacAes256_Sign(sw_input, SIZE_256, key, B5_AES_256, sw_output) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW signature failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE_256; i++) {
+		if (fpga_output[i] != sw_output[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_output = 0x%02x while sw_output = 0x%02x\n\r", i, fpga_output[i], sw_output[i]);
+			return 0;
+		}
+	}
+
+	if (AES_FPGA_Cmac_Finit(&fpga_ctx, fpga_output) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA finit failed\n\r");
+		return 0;
+	}
+
+	if (B5_CmacAes256_Finit(&sw_ctx, sw_output) != B5_AES256_RES_OK) {
+		PRINT_DBG(huart1, buffer, sizeof(buffer), "SW finit failed\n\r");
+		return 0;
+	}
+
+	for (int i = 0; i < SIZE_256; i++) {
+		if (fpga_output[i] != sw_output[i]) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "Data %d, fpga_output = 0x%02x while sw_output = 0x%02x\n\r", i, fpga_output[i], sw_output[i]);
+			return 0;
+		}
+	}
+
+	PRINT_DBG(huart1, buffer, sizeof(buffer), "Finit successful\n\r");
 	PRINT_DBG(huart1, buffer, sizeof(buffer), "\n\r");
 	return 1;
 }

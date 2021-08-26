@@ -129,7 +129,7 @@ static AES_FPGA_RETURN_CODE AES_FPGA_blk_process(uint8_t *input_text, uint8_t *o
 
 }
 
-AES_FPGA_RETURN_CODE AES_FPGA_Update(B5_tAesCtx *ctx, uint8_t *encData, uint8_t *clrData, uint16_t nBlk, uint32_t data_len)
+AES_FPGA_RETURN_CODE AES_FPGA_update(B5_tAesCtx *ctx, uint8_t *encData, uint8_t *clrData, uint16_t nBlk, uint32_t data_len)
 {
 	int16_t    i, j, cb;
 	uint8_t    tmp[B5_AES_BLK_SIZE];
@@ -322,4 +322,206 @@ AES_FPGA_RETURN_CODE AES_FPGA_Update(B5_tAesCtx *ctx, uint8_t *encData, uint8_t 
 	}
 
 	return AES_FPGA_RES_OK;
+}
+
+int32_t AES_FPGA_Cmac_Init(B5_tCmacAesCtx *ctx, const uint8_t *Key, int16_t keySize)
+{
+	uint8_t    Z[16];
+	uint8_t    L[16];
+	uint8_t    Rb16[16]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x87};
+	int32_t    i;
+
+	if(Key == NULL)
+		return B5_CMAC_AES256_RES_INVALID_ARGUMENT;
+
+	if(ctx == NULL)
+		return  B5_CMAC_AES256_RES_INVALID_CONTEXT;
+
+	memset(ctx, 0, sizeof(B5_tCmacAesCtx));
+	memset(Z, 0x00, sizeof(Z));
+
+	// Init AES to prepare K1 and K2 subKeys
+	AES_FPGA_setup(&ctx->aesCtx, Key, keySize, AES_ECB_ENC);
+	AES_FPGA_update(&ctx->aesCtx, L, Z, 1, B5_AES_BLK_SIZE);
+
+	// Prepare K1
+	for (i=0; i < (B5_AES_BLK_SIZE-1); i++)
+		ctx->K1[i] = (L[i] << 1) + (L[i+1] >> 7);
+	ctx->K1[i] = L[i] << 1;
+
+	if ((L[0] & 0x80) == 0x80) {
+		for (i=0; i < B5_AES_BLK_SIZE; i++)
+			ctx->K1[i] ^= Rb16[i];
+	}
+
+	// Prepare K2
+	for (i=0; i < (B5_AES_BLK_SIZE-1); i++)
+		ctx->K2[i] = (ctx->K1[i] << 1) + (ctx->K1[i+1] >> 7);
+	ctx->K2[i] = ctx->K1[i] << 1;
+
+	if ((ctx->K1[0] & 0x80) == 0x80) {
+		for (i=0; i < B5_AES_BLK_SIZE; i++)
+			ctx->K2[i] ^= Rb16[i];
+	}
+
+	memcpy(ctx->C, Z, sizeof(Z));
+	ctx->tmpBlkLen = 0;
+	return B5_CMAC_AES256_RES_OK;
+}
+
+int32_t AES_FPGA_Cmac_Update(B5_tCmacAesCtx *ctx, const uint8_t *data, int32_t dataLen)
+{
+	int32_t i;
+
+	if(ctx == NULL)
+		return  B5_CMAC_AES256_RES_INVALID_CONTEXT;
+
+	if((data == NULL) || (dataLen < 0))
+		return B5_CMAC_AES256_RES_INVALID_ARGUMENT;
+
+	if(dataLen == 0)
+		return B5_CMAC_AES256_RES_OK;
+
+	if(ctx->tmpBlkLen > 0) {
+		// Not enough
+		if((dataLen + ctx->tmpBlkLen) <= B5_AES_BLK_SIZE) {
+			memcpy(&ctx->tmpBlk[ctx->tmpBlkLen], data, dataLen);
+			ctx->tmpBlkLen += dataLen;
+			return B5_CMAC_AES256_RES_OK;
+		}
+
+		// Process the first block (merging tmpBlk and data) and adjust data pointer
+		memcpy(&ctx->tmpBlk[ctx->tmpBlkLen], data, B5_AES_BLK_SIZE-ctx->tmpBlkLen);
+		for (i=0; i < B5_AES_BLK_SIZE; i++)
+			ctx->C[i] ^= ctx->tmpBlk[i];
+		AES_FPGA_update(&ctx->aesCtx, ctx->C, ctx->C, 1, B5_AES_BLK_SIZE);
+		data += (B5_AES_BLK_SIZE-ctx->tmpBlkLen);
+		dataLen -= (B5_AES_BLK_SIZE-ctx->tmpBlkLen);
+		ctx->tmpBlkLen = 0;
+	}
+
+	// Other Blocks
+	while (dataLen > B5_AES_BLK_SIZE) {
+		for (i=0; i < B5_AES_BLK_SIZE; i++)
+			ctx->C[i] ^= data[i];
+		AES_FPGA_update(&ctx->aesCtx, ctx->C, ctx->C, 1, B5_AES_BLK_SIZE);
+		dataLen -= B5_AES_BLK_SIZE;
+		data += B5_AES_BLK_SIZE;
+	}
+
+	memcpy(&ctx->tmpBlk[0], data, dataLen);
+	ctx->tmpBlkLen = dataLen;
+	return B5_CMAC_AES256_RES_OK;
+}
+
+int32_t AES_FPGA_Cmac_Finit(B5_tCmacAesCtx *ctx, uint8_t *rSignature)
+{
+	int32_t i;
+	uint8_t MN[B5_AES_BLK_SIZE];
+
+	if(ctx == NULL)
+		return B5_CMAC_AES256_RES_INVALID_CONTEXT;
+
+	if(rSignature == NULL)
+		return B5_CMAC_AES256_RES_INVALID_ARGUMENT;
+
+	// Last Block
+	if(ctx->tmpBlkLen == B5_AES_BLK_SIZE) {
+		for (i=0; i < ctx->tmpBlkLen; i++)
+			MN[i] = ctx->K1[i] ^ ctx->tmpBlk[i];
+	} else {
+		for (i=0; i < B5_AES_BLK_SIZE; i++)
+			MN[i] = ctx->K2[i];
+		for (i=0; i < ctx->tmpBlkLen; i++)
+			MN[i] ^= ctx->tmpBlk[i];
+		MN[ctx->tmpBlkLen] ^= 0x80;
+	}
+
+	for (i=0; i < B5_AES_BLK_SIZE; i++)
+		ctx->C[i] ^= MN[i];
+
+	AES_FPGA_update(&ctx->aesCtx, rSignature, ctx->C, 1, B5_AES_BLK_SIZE);
+	return B5_CMAC_AES256_RES_OK;
+}
+
+int32_t AES_FPGA_Cmac_Reset(B5_tCmacAesCtx *ctx)
+{
+	if(ctx == NULL)
+		return B5_CMAC_AES256_RES_INVALID_CONTEXT;
+
+	memset(ctx->C, 0, sizeof(ctx->C));
+	ctx->tmpBlkLen = 0;
+	return B5_CMAC_AES256_RES_OK;
+}
+
+int32_t AES_FPGA_Cmac_Sign(const uint8_t *data, int32_t dataLen, const uint8_t *Key, int16_t keySize, uint8_t *rSignature)
+{
+	uint8_t K1[B5_AES_BLK_SIZE], K2[B5_AES_BLK_SIZE];
+	uint8_t L[B5_AES_BLK_SIZE], C[B5_AES_BLK_SIZE], Z[B5_AES_BLK_SIZE];
+	uint8_t MN[B5_AES_BLK_SIZE];
+	uint8_t Rb16[16]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x87};
+	int32_t i;
+	B5_tAesCtx aesCtx;
+
+	if((data == NULL) || (dataLen < 0) || (Key == NULL) || (rSignature == NULL))
+		return B5_CMAC_AES256_RES_INVALID_ARGUMENT;
+
+	if((keySize != B5_CMAC_AES_128) && (keySize != B5_CMAC_AES_192) && (keySize != B5_CMAC_AES_256))
+		return B5_CMAC_AES256_RES_INVALID_KEY_SIZE;
+
+	memset(Z, 0x00, sizeof(Z));
+
+	// Init AES to prepare K1 and K2 subKeys
+	AES_FPGA_setup(&aesCtx, Key, keySize, AES_ECB_ENC);
+	AES_FPGA_update(&aesCtx, L, Z, 1, B5_AES_BLK_SIZE);
+
+	// Prepare K1
+	for (i=0; i < (B5_AES_BLK_SIZE-1); i++)
+		K1[i] = (L[i] << 1) + (L[i+1] >> 7);
+	K1[i] = L[i] << 1;
+
+	if ((L[0] & 0x80) == 0x80) {
+		for (i=0; i < B5_AES_BLK_SIZE; i++)
+			K1[i] ^= Rb16[i];
+	}
+
+	// Prepare K2
+	for (i=0; i < (B5_AES_BLK_SIZE-1); i++)
+		K2[i] = (K1[i] << 1) + (K1[i+1] >> 7);
+	K2[i] = K1[i] << 1;
+
+	if ((K1[0] & 0x80) == 0x80) {
+		for (i=0; i < B5_AES_BLK_SIZE; i++)
+			K2[i] ^= Rb16[i];
+	}
+
+	// Calculate MAC (from 1 to N-1 blk)
+	memcpy(C, Z, sizeof(Z));
+	while(dataLen > B5_AES_BLK_SIZE) {
+		for (i=0; i < B5_AES_BLK_SIZE; i++)
+			C[i] ^= data[i];
+
+		AES_FPGA_update(&aesCtx, C, C, 1, B5_AES_BLK_SIZE);
+
+		dataLen -= B5_AES_BLK_SIZE;
+		data += B5_AES_BLK_SIZE;
+	}
+
+	// Last Block
+	if(dataLen == B5_AES_BLK_SIZE) {
+		for (i=0; i < dataLen; i++)
+			MN[i] = K1[i] ^ data[i];
+	} else {
+		for (i=0; i < B5_AES_BLK_SIZE; i++)
+			MN[i] = K2[i];
+		for (i=0; i < dataLen; i++)
+			MN[i] ^= data[i];
+		MN[dataLen] ^= 0x80;
+	}
+
+	for (i=0; i<B5_AES_BLK_SIZE; i++)
+		C[i] ^= MN[i];
+
+	AES_FPGA_update(&aesCtx, rSignature, C, 1, B5_AES_BLK_SIZE);
+	return B5_CMAC_AES256_RES_OK;
 }

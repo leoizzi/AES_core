@@ -91,7 +91,56 @@ int32_t AES_FPGA_SetIV(B5_tAesCtx *ctx, const uint8_t *IV);
  * @param data_len Size of the data to process.
  * @return Returns AES_FPGA_RES_OK on success, error code on error.
  */
-AES_FPGA_RETURN_CODE AES_FPGA_Update(B5_tAesCtx *ctx, uint8_t *encData, uint8_t *clrData, uint16_t nBlk, uint32_t data_len);
+AES_FPGA_RETURN_CODE AES_FPGA_update(B5_tAesCtx *ctx, uint8_t *encData, uint8_t *clrData, uint16_t nBlk, uint32_t data_len);
+
+/**
+ *
+ * @brief Initialize the CMAC-AES context.
+ * @param ctx Pointer to the CMAC-AES data structure to be initialized.
+ * @param Key Pointer to the Key that must be used.
+ * @param keySize Key size. See \ref cmacaesKeys for supported sizes.
+ * @return See \ref cmacaesReturn .
+ */
+int32_t AES_FPGA_Cmac_Init(B5_tCmacAesCtx *ctx, const uint8_t *Key, int16_t keySize);
+
+/**
+ *
+ * @brief Compute the CMAC-AES algorithm on input data depending on the current status of the CMAC-AES context.
+ * @param ctx Pointer to the current CMAC-AES context.
+ * @param data Pointer to the input data.
+ * @param dataLen Bytes to be processed.
+ * @return See \ref cmacaesReturn .
+ */
+int32_t AES_FPGA_Cmac_Update(B5_tCmacAesCtx *ctx, const uint8_t *data, int32_t dataLen);
+
+/**
+ *
+ * @brief De-initialize the current CMAC-AES context.
+ * @param ctx Pointer to the CMAC-AES context to de-initialize.
+ * @param rSignature Pointer to a blank memory area that can store the computed output signature.
+ * @return See \ref cmacaesReturn .
+ */
+int32_t AES_FPGA_Cmac_Finit(B5_tCmacAesCtx *ctx, uint8_t *rSignature);
+
+/**
+ *
+ * @brief Reset the current CMAC-AES context.
+ * @param ctx Pointer to the CMAC-AES context to reset.
+ * @return See \ref cmacaesReturn .
+ */
+int32_t AES_FPGA_Cmac_Reset(B5_tCmacAesCtx *ctx);
+
+/**
+ *
+ * @brief Compute the signature through the CMAC-AES algorithm.
+ * @param data Pointer to the input data.
+ * @param dataLen Input data length (in Bytes).
+ * @param Key Pointer to the Key that must be used.
+ * @param keySize Key size. See \ref cmacaesKeys for supported sizes.
+ * @param rSignature Pointer to a blank memory area that can store the computed output signature.
+ * @return See \ref cmacaesReturn .
+ */
+int32_t AES_FPGA_Cmac_Sign(const uint8_t *data, int32_t dataLen, const uint8_t *Key, int16_t keySize, uint8_t *rSignature);
 
 #endif /* INC_AES_FPGA_H_ */
 
