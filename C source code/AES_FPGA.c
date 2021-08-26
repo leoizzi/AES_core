@@ -77,13 +77,18 @@ static AES_FPGA_RETURN_CODE AES_FPGA_blk_process(uint8_t *input_text, uint8_t *o
 	//Transmit 128-bit data.
 	for (int i=0; i < (B5_AES_BLK_SIZE >> 1); i++){
 		if (FPGA_IPM_write(AES_CORE_ID, WRITE_BASE_ADDR + i, &tx_data[i])) {
+			PRINT_DBG(huart1, buffer, sizeof(buffer), "crash 0\n\r");
 			return FPGA_ERROR;
 		}
+
+		uint16_t v;
+		FPGA_IPM_read(AES_CORE_ID, WRITE_BASE_ADDR+i, &v);
 	}
 
 	//Close transaction.
-	if (FPGA_IPM_close(AES_CORE_ID) != 0)
+	if (FPGA_IPM_close(AES_CORE_ID) != 0) {
 		return FPGA_ERROR;
+	}
 
 	//Read back the result from the FPGA.
 	//Open communication with FPGA.
@@ -93,8 +98,9 @@ static AES_FPGA_RETURN_CODE AES_FPGA_blk_process(uint8_t *input_text, uint8_t *o
 		r = FPGA_IPM_open(AES_CORE_ID, DECRYPTION, 0, 0);
 	}
 
-	if (r != 0)
+	if (r != 0) {
 		return  FPGA_ERROR;
+	}
 
 	//Write the lock.
 	FPGA_IPM_DATA lock = FPGA_LOCK;
@@ -267,7 +273,7 @@ AES_FPGA_RETURN_CODE AES_FPGA_Update(B5_tAesCtx *ctx, uint8_t *encData, uint8_t 
 		case B5_AES256_CFB_ENC:
 		{
 			for (i = 0; i < nBlk; i++) {
-				r = AES_FPGA_blk_process(ctx->InitVector, tmp, AES_OP_DECRYPT);
+				r = AES_FPGA_blk_process(ctx->InitVector, tmp, AES_OP_ENCRYPT);
 				if (r != AES_FPGA_RES_OK) {
 					return r;
 				}
@@ -289,7 +295,7 @@ AES_FPGA_RETURN_CODE AES_FPGA_Update(B5_tAesCtx *ctx, uint8_t *encData, uint8_t 
 		case B5_AES256_CFB_DEC:
 		{
 			for (i = 0; i < nBlk; i++) {
-				r = AES_FPGA_blk_process(ctx->InitVector, tmp, AES_OP_DECRYPT);
+				r = AES_FPGA_blk_process(ctx->InitVector, tmp, AES_OP_ENCRYPT);
 				if (r != AES_FPGA_RES_OK) {
 					return r;
 				}
