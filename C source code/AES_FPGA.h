@@ -70,7 +70,7 @@ typedef enum aes_op_t aes_op_t;
  *  \result ctx context has been initialized.
  *  \return Returns AES_FPGA_RES_OK on success, error code on error.
  */
-AES_FPGA_RETURN_CODE AES_FPGA_setup(B5_tAesCtx *ctx, const uint8_t *Key, int16_t keySize, aes_mode_t aes_mode);
+AES_FPGA_RETURN_CODE AES_FPGA_init(B5_tAesCtx *ctx, const uint8_t *Key, int16_t keySize, aes_mode_t aes_mode);
 
 /**
  *

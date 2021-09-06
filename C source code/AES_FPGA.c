@@ -11,7 +11,7 @@ extern UART_HandleTypeDef huart1;
  */
 static AES_FPGA_RETURN_CODE AES_FPGA_blk_process(uint8_t *input_text, uint8_t *output_text, aes_op_t aes_op);
 
-AES_FPGA_RETURN_CODE AES_FPGA_setup(B5_tAesCtx *ctx, const uint8_t *Key, int16_t keySize, aes_mode_t aes_mode){
+AES_FPGA_RETURN_CODE AES_FPGA_init(B5_tAesCtx *ctx, const uint8_t *Key, int16_t keySize, aes_mode_t aes_mode){
 	int8_t r;
 
 	if (B5_Aes256_Init(ctx, Key, keySize, aes_mode) != B5_AES256_RES_OK)
@@ -341,7 +341,7 @@ int32_t AES_FPGA_Cmac_Init(B5_tCmacAesCtx *ctx, const uint8_t *Key, int16_t keyS
 	memset(Z, 0x00, sizeof(Z));
 
 	// Init AES to prepare K1 and K2 subKeys
-	AES_FPGA_setup(&ctx->aesCtx, Key, keySize, AES_ECB_ENC);
+	AES_FPGA_init(&ctx->aesCtx, Key, keySize, AES_ECB_ENC);
 	AES_FPGA_update(&ctx->aesCtx, L, Z, 1, B5_AES_BLK_SIZE);
 
 	// Prepare K1
@@ -472,7 +472,7 @@ int32_t AES_FPGA_Cmac_Sign(const uint8_t *data, int32_t dataLen, const uint8_t *
 	memset(Z, 0x00, sizeof(Z));
 
 	// Init AES to prepare K1 and K2 subKeys
-	AES_FPGA_setup(&aesCtx, Key, keySize, AES_ECB_ENC);
+	AES_FPGA_init(&aesCtx, Key, keySize, AES_ECB_ENC);
 	AES_FPGA_update(&aesCtx, L, Z, 1, B5_AES_BLK_SIZE);
 
 	// Prepare K1

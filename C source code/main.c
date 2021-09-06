@@ -299,7 +299,7 @@ int test_ECB_256(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_ECB_ENC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_256, AES_ECB_ENC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -342,7 +342,7 @@ int test_ECB_256(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_ECB_DEC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_256, AES_ECB_DEC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -396,7 +396,7 @@ int test_ECB_192(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_ECB_ENC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_192, AES_ECB_ENC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -439,7 +439,7 @@ int test_ECB_192(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_ECB_DEC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_192, AES_ECB_DEC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -493,7 +493,7 @@ int test_ECB_128(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_ECB_ENC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_128, AES_ECB_ENC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -536,7 +536,7 @@ int test_ECB_128(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_ECB_DEC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_128, AES_ECB_DEC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -591,7 +591,7 @@ int test_CBC_256(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_CBC_ENC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_256, AES_CBC_ENC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -636,7 +636,7 @@ int test_CBC_256(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_CBC_DEC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_256, AES_CBC_DEC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -690,7 +690,7 @@ int test_CBC_192(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_CBC_ENC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_192, AES_CBC_ENC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -735,7 +735,7 @@ int test_CBC_192(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_CBC_DEC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_192, AES_CBC_DEC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -789,7 +789,7 @@ int test_CBC_128(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_CBC_ENC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_128, AES_CBC_ENC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -834,7 +834,7 @@ int test_CBC_128(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_CBC_DEC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_128, AES_CBC_DEC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -889,7 +889,7 @@ int test_CTR_256(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_CTR) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_256, AES_CTR) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -932,7 +932,7 @@ int test_CTR_256(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_CTR) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_256, AES_CTR) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -986,7 +986,7 @@ int test_CTR_192(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_CTR) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_192, AES_CTR) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1029,7 +1029,7 @@ int test_CTR_192(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_CTR) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_192, AES_CTR) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1083,7 +1083,7 @@ int test_CTR_128(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_CTR) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_128, AES_CTR) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1126,7 +1126,7 @@ int test_CTR_128(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_CTR) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_128, AES_CTR) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1181,7 +1181,7 @@ int test_CFB_256(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_CFB_ENC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_256, AES_CFB_ENC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1224,7 +1224,7 @@ int test_CFB_256(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_CFB_DEC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_256, AES_CFB_DEC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1278,7 +1278,7 @@ int test_CFB_192(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_CFB_ENC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_192, AES_CFB_ENC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1321,7 +1321,7 @@ int test_CFB_192(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_CFB_DEC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_192, AES_CFB_DEC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1375,7 +1375,7 @@ int test_CFB_128(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_CFB_ENC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_128, AES_CFB_ENC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1418,7 +1418,7 @@ int test_CFB_128(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_CFB_DEC) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_128, AES_CFB_DEC) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1474,7 +1474,7 @@ int test_OFB_256(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_OFB) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_256, AES_OFB) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1517,7 +1517,7 @@ int test_OFB_256(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_256, AES_OFB) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_256, AES_OFB) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1571,7 +1571,7 @@ int test_OFB_192(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_OFB) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_192, AES_OFB) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1614,7 +1614,7 @@ int test_OFB_192(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_192, AES_OFB) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_192, AES_OFB) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1668,7 +1668,7 @@ int test_OFB_128(){
 
 	// setup encryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_OFB) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_128, AES_OFB) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
@@ -1711,7 +1711,7 @@ int test_OFB_128(){
 
 	// setup decryption
 
-	if (AES_FPGA_setup(&fpga_ctx, key, B5_AES_128, AES_OFB) != AES_FPGA_RES_OK) {
+	if (AES_FPGA_init(&fpga_ctx, key, B5_AES_128, AES_OFB) != AES_FPGA_RES_OK) {
 		PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA setup failed\n\r");
 		return 0;
 	}
