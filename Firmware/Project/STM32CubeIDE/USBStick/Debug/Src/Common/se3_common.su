@@ -1,5 +1,0 @@
-se3_common.c:42:10:se3_req_len_data	24	static
-se3_common.c:56:10:se3_req_len_data_and_headers	24	static
-se3_common.c:70:10:se3_resp_len_data	24	static
-se3_common.c:84:10:se3_resp_len_data_and_headers	24	static
-se3_common.c:98:10:se3_nblocks	24	static

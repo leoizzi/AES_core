@@ -1,7 +1,0 @@
-se3_memory.c:41:6:se3_mem_reset	24	static
-se3_memory.c:59:6:se3_mem_init	32	static
-se3_memory.c:72:13:se3_mem_compact	32	static
-se3_memory.c:94:17:se3_mem_defrag	40	static
-se3_memory.c:156:9:se3_mem_alloc	48	static
-se3_memory.c:251:10:se3_mem_ptr	16	static
-se3_memory.c:269:6:se3_mem_free	24	static

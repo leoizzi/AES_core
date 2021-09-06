@@ -1,9 +1,0 @@
-Fpgaipm.c:48:18:FPGA_IPM_init	128	static
-Fpgaipm.c:269:18:FPGA_IPM_open	32	static
-Fpgaipm.c:283:18:FPGA_IPM_read	24	static
-Fpgaipm.c:294:18:FPGA_IPM_write	24	static
-Fpgaipm.c:305:18:FPGA_IPM_close	24	static
-Fpgaipm.c:318:25:checkCore	16	static
-Fpgaipm.c:321:13:writeRow0	24	static
-Fpgaipm.c:328:13:readRow0	16	static
-Fpgaipm.c:334:6:EXTI9_5_IRQHandler	8	static

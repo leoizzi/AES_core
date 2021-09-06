@@ -1,7 +1,0 @@
-usbd_storage_if.c:172:8:STORAGE_Init_HS	16	static
-usbd_storage_if.c:186:8:STORAGE_GetCapacity_HS	24	static
-usbd_storage_if.c:203:9:STORAGE_IsReady_HS	16	static
-usbd_storage_if.c:220:9:STORAGE_IsWriteProtected_HS	16	static
-usbd_storage_if.c:234:8:STORAGE_Read_HS	32	static
-usbd_storage_if.c:264:8:STORAGE_Write_HS	24	static
-usbd_storage_if.c:287:8:STORAGE_GetMaxLun_HS	4	static

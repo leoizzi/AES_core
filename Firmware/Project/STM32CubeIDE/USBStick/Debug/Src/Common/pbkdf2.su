@@ -1,3 +1,0 @@
-pbkdf2.c:29:14:xor_bb	32	static
-pbkdf2.c:36:13:F	560	static
-pbkdf2.c:72:6:PBKDF2HmacSha256	568	static

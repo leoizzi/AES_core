@@ -1,2 +1,0 @@
-se3_algo_HmacSha256.c:33:10:se3_algo_HmacSha256_init	32	static
-se3_algo_HmacSha256.c:49:10:se3_algo_HmacSha256_update	32	static

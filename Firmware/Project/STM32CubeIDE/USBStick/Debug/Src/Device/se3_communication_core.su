@@ -1,9 +1,0 @@
-se3_communication_core.c:60:6:se3_communication_core_init	8	static
-se3_communication_core.c:89:13:block_is_magic	32	static
-se3_communication_core.c:110:12:find_magic_index	24	static
-se3_communication_core.c:133:16:se3_storage_range_add	32	static
-se3_communication_core.c:165:6:se3_proto_request_reset	4	static
-se3_communication_core.c:179:13:handle_req_recv	24	static
-se3_communication_core.c:245:9:se3_proto_recv	64	static
-se3_communication_core.c:328:13:handle_resp_send	32	static
-se3_communication_core.c:392:9:se3_proto_send	64	static

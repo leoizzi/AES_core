@@ -1,4 +1,0 @@
-se3_sdio.c:30:6:secube_sdio_write	32	static
-se3_sdio.c:38:6:secube_sdio_read	32	static
-se3_sdio.c:47:6:secube_sdio_capacity	16	static
-se3_sdio.c:59:6:secube_sdio_isready	8	static
