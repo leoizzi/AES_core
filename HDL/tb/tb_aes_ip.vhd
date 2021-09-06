@@ -71,90 +71,90 @@ architecture test of FPGA_testbench is
 		X"5a721c0a8813bbd59bf500252541fe71",
 		X"cdf8cdea7e572baaa9f24fe04e5a6699",
 		X"6d68de36371ac23cbf0979e924fc79cc"
-		); 
+	);
 
 	constant dec_rom_256 : rom_array_256 := (
-		X"24fc79ccbf0979e9371ac23c6d68de36",
-		X"4e5a6699a9f24fe07e572baacdf8cdea",
-		X"2541fe719bf500258813bbd55a721c0a",
-		X"f01afafee7a82979d7a5644ab3afe640",
-		X"7ccff71cbeb4fe5413e6bbf0d261a7df",
-		X"45f5a66017b2d387300d4d33640a820a",
-		X"0bdc905fc27b0948ad5245a4c1871c2f",
-		X"3de23a75524775e727bf9eb45407cf39",
-		X"c656827fc9a799176f294cec6cd5598b",
-		X"6de1f1486fa54f9275f8eb5373b8518d",
-		X"ae87dff00ff11b68a68ed5fb03fc1567",
-		X"1651a8cd0244beda1a5da4c10640bade",
-		X"a573c29fa176c498a97fce93a572c09c",
-		X"101112131415161718191a1b1c1d1e1f",
-		X"000102030405060708090a0b0c0d0e0f"
-		);
+		X"6d68de36371ac23cbf0979e924fc79cc",
+		X"2558016efce9e25fbfceaa2f34f1d1ff",
+		X"dc80e6847571b746384c350a5e1648eb",
+		X"d9b1e331432748708b3f7bd0c8a30580",
+		X"a9f151c24d3d824c665a7de1b5708e13",
+		X"9a96ab41c81833a0439c7e5074da7ba3",
+		X"e4ccd38e2b67ffadd32af3f23ca69715",
+		X"528e98e18b844df0374605f3f85fc4f3",
+		X"cfab2c23f84d0c5fef8c64e7de69409a",
+		X"d90ad511bcc24803cf19c100aed55816",
+		X"37e6207c17c168b831e5247d15c668bd",
+		X"65c89d1273db890361cc99167fd7850f",
+		X"202748c426244cc524234cc02a2840c9",
+		X"16131411121710151e1b1c191a1f181d",
+		X"0c0d0e0f08090a0b0405060700010203"
+	);
 
 	constant enc_rom_192 : rom_array_192 := (
-		X"000102030405060708090a0b0c0d0e0f",
-		X"10111213141516175846f2f95c43f4fe",
-		X"544afef55847f0fa4856e2e95c43f4fe",
-		X"40f949b31cbabd4d48f043b810b7b342",
-		X"58e151ab04a2a5557effb5416245080c",
-		X"2ab54bb43a02f8f662e3a95d66410c08",
-		X"f501857297448d7ebdf1c6ca87f33e3c",
-		X"e510976183519b6934157c9ea351f1e0",
-		X"1ea0372a995309167c439e77ff12051e",
-		X"dd7e0e887e2fff68608fc842f9dcc154",
-		X"859f5f237a8d5a3dc0c02952beefd63a",
-		X"de601e7827bcdf2ca223800fd8aeda32",
-		X"a4970a331a78dc09c418c271e3a41d5d"
-		);
+		X"0c0d0e0f08090a0b0405060700010203",
+		X"5c43f4fe5846f2f91415161710111213",
+		X"5c43f4fe4856e2e95847f0fa544afef5",
+		X"10b7b34248f043b81cbabd4d40f949b3",
+		X"6245080c7effb54104a2a55558e151ab",
+		X"66410c0862e3a95d3a02f8f62ab54bb4",
+		X"87f33e3cbdf1c6ca97448d7ef5018572",
+		X"a351f1e034157c9e83519b69e5109761",
+		X"ff12051e7c439e77995309161ea0372a",
+		X"f9dcc154608fc8427e2fff68dd7e0e88",
+		X"beefd63ac0c029527a8d5a3d859f5f23",
+		X"d8aeda32a223800f27bcdf2cde601e78",
+		X"e3a41d5dc418c2711a78dc09a4970a33"
+	);
 
 	constant dec_rom_192 : rom_array_192 := (
-		X"a4970a331a78dc09c418c271e3a41d5d",
-		X"de601e7827bcdf2ca223800fd8aeda32",
-		X"859f5f237a8d5a3dc0c02952beefd63a",
-		X"dd7e0e887e2fff68608fc842f9dcc154",
-		X"1ea0372a995309167c439e77ff12051e",
-		X"e510976183519b6934157c9ea351f1e0",
-		X"f501857297448d7ebdf1c6ca87f33e3c",
-		X"2ab54bb43a02f8f662e3a95d66410c08",
-		X"58e151ab04a2a5557effb5416245080c",
-		X"40f949b31cbabd4d48f043b810b7b342",
-		X"544afef55847f0fa4856e2e95c43f4fe",
-		X"10111213141516175846f2f95c43f4fe",
-		X"000102030405060708090a0b0c0d0e0f"
-		);
+		X"e3a41d5dc418c2711a78dc09a4970a33",
+		X"3e021bb94db07380c209ea49d6bebd0d",
+		X"85c68c72c7f9d89d73b268398fb999c9",
+		X"14b757445378317f423f54eff77d6ec1",
+		X"fc0bf1f09b0ece8d47cf663b11476590",
+		X"b5423a2ecc5c194a67053f7ddcc1a8b6",
+		X"568803aba4055fbe791e2364c6deb0ab",
+		X"bbc497cb8a49ab1df28d5c15dd1b7cda",
+		X"bfc093cf9655b701318d3cd678c4f708",
+		X"2f9620cf62dbef15299524ce60dcef10",
+		X"4949cbde5752d7c74d4dcfda4b4ecbdb",
+		X"4949cbde4742c7d71e1b1c191a1f181d",
+		X"0c0d0e0f08090a0b0405060700010203"
+	);
 
 	constant enc_rom_128 : rom_array_128 := (
-		X"000102030405060708090a0b0c0d0e0f",
-		X"d6aa74fdd2af72fadaa678f1d6ab76fe",
-		X"b692cf0b643dbdf1be9bc5006830b3fe",
-		X"b6ff744ed2c2c9bf6c590cbf0469bf41",
-		X"47f7f7bc95353e03f96c32bcfd058dfd",
-		X"3caaa3e8a99f9deb50f3af57adf622aa",
-		X"5e390f7df7a69296a7553dc10aa31f6b",
-		X"14f9701ae35fe28c440adf4d4ea9c026",
-		X"47438735a41c65b9e016baf4aebf7ad2",
-		X"549932d1f08557681093ed9cbe2c974e",
-		X"13111d7fe3944a17f307a78b4d2b30c5"
-		);
+		X"0c0d0e0f08090a0b0405060700010203",
+		X"d6ab76fedaa678f1d2af72fad6aa74fd",
+		X"6830b3febe9bc500643dbdf1b692cf0b",
+		X"0469bf416c590cbfd2c2c9bfb6ff744e",
+		X"fd058dfdf96c32bc95353e0347f7f7bc",
+		X"adf622aa50f3af57a99f9deb3caaa3e8",
+		X"0aa31f6ba7553dc1f7a692965e390f7d",
+		X"4ea9c026440adf4de35fe28c14f9701a",
+		X"aebf7ad2e016baf4a41c65b947438735",
+		X"be2c974e1093ed9cf0855768549932d1",
+		X"4d2b30c5f307a78be3944a1713111d7f"
+	);
 
 	constant dec_rom_128 : rom_array_128 := (
-		X"13111d7fe3944a17f307a78b4d2b30c5",
-		X"549932d1f08557681093ed9cbe2c974e",
-		X"47438735a41c65b9e016baf4aebf7ad2",
-		X"14f9701ae35fe28c440adf4d4ea9c026",
-		X"5e390f7df7a69296a7553dc10aa31f6b",
-		X"3caaa3e8a99f9deb50f3af57adf622aa",
-		X"47f7f7bc95353e03f96c32bcfd058dfd",
-		X"b6ff744ed2c2c9bf6c590cbf0469bf41",
-		X"b692cf0b643dbdf1be9bc5006830b3fe",
-		X"d6aa74fdd2af72fadaa678f1d6ab76fe",
-		X"000102030405060708090a0b0c0d0e0f"
-		); 
+		X"4d2b30c5f307a78be3944a1713111d7f",
+		X"00f7bf03f770f5809c8faff613aa29be",
+		X"f7874a836bff5a768f2586481362a463",
+		X"9c7810f5e4dadc3e9c47222b8d82fc74",
+		X"78a2cccb789dfe1511c5de5f72e3098d",
+		X"003f32de6958204a6326d7d22ec41027",
+		X"696712940a7ef7984de2c7f5a8a2f504",
+		X"6319e50c479c306de54032f1c7c6e391",
+		X"2485d561a2dc029c2286d160a0db0299",
+		X"8659d7fd805ad3fc825dd3f98c56dff0",
+		X"0c0d0e0f08090a0b0405060700010203"
+	);
 
 	constant plaintext: std_logic_vector(127 downto 0) := X"ffeeddccbbaa99887766554433221100";
 	constant cyphertext_256 : std_logic_vector(127 downto 0) := X"8960494b9049fceabf456751cab7a28e";
-	constant cyphertext_192 : std_logic_vector(127 downto 0) := X"dda97ca4864cdfe06eaf70a0ec0d7191"; 
-	constant cyphertext_128 : std_logic_vector(127 downto 0) := X"69c4e0d86a7b0430d8cdb78070b4c55a"; 
+	constant cyphertext_192 : std_logic_vector(127 downto 0) := X"91710deca070af6ee0df4c86a47ca9dd"; 
+	constant cyphertext_128 : std_logic_vector(127 downto 0) := X"5ac5b47080b7cdd830047b6ad8e0c469";
 		
 	-- FPGA INTERFACE SIGNALS
 	signal hclk		 : std_logic := '0';	
@@ -264,48 +264,48 @@ begin
 		--------------------------------------------------------------------------------------------------------------
 		
 		-- test 0: Encryption AES 256
-		write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		write("001000", "000000000000"&AES_256_N_KEYS);
-		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+		--write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		--write("001000", "000000000000"&AES_256_N_KEYS);
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
-		write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		--write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
 
-		-- transfer the keys
-		for i in 0 to 14 loop
-			for j in 0 to 7 loop
-				addr := std_logic_vector(to_unsigned(j, 3));
-				write("001"&addr, enc_rom_256(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
-			end loop;
-		end loop;
+		---- transfer the keys
+		--for i in 0 to 14 loop
+		--	for j in 0 to 7 loop
+		--		addr := std_logic_vector(to_unsigned(j, 3));
+		--		write("001"&addr, enc_rom_256(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
+		--	end loop;
+		--end loop;
 
-		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
-		write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		-- send the plaintext
-		for i in 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			write("001"&addr, plaintext((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
-		end loop;
+		--write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- send the plaintext
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	write("001"&addr, plaintext((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
+		--end loop;
 
-		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
-		write("000000", ENCRYPTION & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		-- write the lock
-		write("000001", X"FFFF");
+		--write("000000", ENCRYPTION & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		---- write the lock
+		--write("000001", X"FFFF");
 
-		read("000001");
-		while result = x"FFFF" loop
-			read("000001");
-		end loop;
+		--read("000001");
+		--while result = x"FFFF" loop
+		--	read("000001");
+		--end loop;
 
-		-- read the results
-		for i in 0 to 7 loop
-			addr := std_logic_vector(to_unsigned(i, 3));
-			read("001"&addr);
-			assert (result = cyphertext_256((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH)) report "WRONG ENCRYPTION" severity FAILURE;
-		end loop;
+		---- read the results
+		--for i in 0 to 7 loop
+		--	addr := std_logic_vector(to_unsigned(i, 3));
+		--	read("001"&addr);
+		--	assert (result = cyphertext_256((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH)) report "WRONG ENCRYPTION" severity FAILURE;
+		--end loop;
 
-		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
 
 
@@ -357,7 +357,7 @@ begin
 
 
 
-		-- test 2: Encryption AES 256
+		-- test 2: Encryption AES 192
 		--write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
 		--write("001000", "000000000000"&AES_192_N_KEYS);
 		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
@@ -404,7 +404,7 @@ begin
 
 
 
-		-- test 3: Decryption AES 256
+		-- test 3: Decryption AES 192
 		--write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
 		--write("001000", "000000000000"&AES_192_N_KEYS);
 		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
@@ -499,48 +499,49 @@ begin
 
 
 		-- test 5: Decryption AES 128
-		--write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		--write("001000", "000000000000"&AES_128_N_KEYS);
-		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+		write("000000", ALG_SEL & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		write("001000", "000000000000"&AES_128_N_KEYS);
+		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
-		--write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		write("000000", KEY_TRANSFER & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
 
-		---- transfer the keys
-		--for i in 0 to 10 loop
-		--	for j in 0 to 7 loop
-		--		addr := std_logic_vector(to_unsigned(j, 3));
-		--		write("001"&addr, dec_rom_128(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
-		--	end loop;
-		--end loop;
+		-- transfer the keys
+		for i in 0 to 10 loop
+			for j in 0 to 7 loop
+				addr := std_logic_vector(to_unsigned(j, 3));
+				write("001"&addr, dec_rom_128(i)((j+1)*DATA_WIDTH-1 downto j*DATA_WIDTH));
+			end loop;
+		end loop;
 
-		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
-		--write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		---- send the plaintext
-		--for i in 0 to 7 loop
-		--	addr := std_logic_vector(to_unsigned(i, 3));
-		--	write("001"&addr, cyphertext_128((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
-		--end loop;
+		write("000000", DATA_RX & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		-- send the plaintext
+		for i in 0 to 7 loop
+			addr := std_logic_vector(to_unsigned(i, 3));
+			write("001"&addr, cyphertext_128((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH));
+		end loop;
 
-		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
 
-		--write("000000", DECRYPTION & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
-		---- write the lock
-		--write("000001", X"FFFF");
+		write("000000", DECRYPTION & CONF_OPEN_TRANSACTION_POLMODE & "0000001");
+		-- write the lock
+		write("000001", X"FFFF");
 
-		--read("000001");
-		--while result = x"FFFF" loop
-		--	read("000001");
-		--end loop;
+		read("000001");
+		while result = x"FFFF" loop
+			read("000001");
+		end loop;
 
-		---- read the results
-		--for i in 0 to 7 loop
-		--	addr := std_logic_vector(to_unsigned(i, 3));
-		--	read("001"&addr);
-		--	assert (result = plaintext((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH)) report "WRONG DECRYPTION" severity FAILURE;
-		--end loop;
+		-- read the results
+		for i in 0 to 7 loop
+			addr := std_logic_vector(to_unsigned(i, 3));
+			read("001"&addr);
+			assert (result = plaintext((i+1)*DATA_WIDTH-1 downto i*DATA_WIDTH)) report "WRONG DECRYPTION" severity FAILURE;
+		end loop;
 
-		--write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
-		--wait;
+		write("000000", IDLE & CONF_CLOSE_TRANSACTION_POLMODE & "0000001");
+		
+		wait;
 	end process;
 end test;
