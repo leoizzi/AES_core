@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+-- AES encryption unit, containing both the datapath and the CU
 entity aes_enc_unit is
 	port (
 		clk: in std_logic;

@@ -71,14 +71,9 @@ append xcf_path "/" $impl_name ".xcf"
 
 # RUN CONFIG #
 
-# prj_strgy set_value -strategy Strategy1 lse_frequency=60
 prj_strgy set_value -strategy Strategy1 lse_max_fanout_limit=250 lse_opt_goal=Timing lse_res_sharing=False lse_remove_dup_regs=False lse_use_carry_chain=False
-# prj_strgy set_value -strategy Strategy1 map_reg_retiming=True
 prj_strgy set_value -strategy Strategy1 {par_clk_skew_min=2 (recommended for On)}
 prj_strgy set_value -strategy Strategy1 par_cdp=1 par_cdr=1 par_route_delay_reduction_pass=4 par_routing_res_opt=6 par_routeing_pass=8 par_place_iterator=4 
-
-# prj_strgy set_value -strategy Strategy1 syn_res_sharing=False
-# prj_strgy set_value -strategy Strategy1 {syn_pipelining_retiming=Pipelining and Retiming} syn_frequency=60
 
 prj_run Map -impl $impl_name -task MapTrace
 prj_run PAR -impl $impl_name -task PARTrace

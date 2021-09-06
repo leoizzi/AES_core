@@ -11,11 +11,6 @@ architecture Dataflow of EncShiftRows is
     signal res0, res1, res2, res3: std_logic_vector(31 downto 0);
     signal row0, row1, row2, row3: std_logic_vector(31 downto 0);
 begin
-
-    -- TODO: i dati arrivano per colonne quindi tocca adattare lo shift
-    --    c3       c2       c1       c0
-    -- a0fafe17 88542cb1 23a33939 2a6c7605
-
     row0 <= data_in(103 downto 96)&data_in(71 downto 64)&data_in(39 downto 32)&data_in(7 downto 0);
     row1 <= data_in(111 downto 104)&data_in(79 downto 72)&data_in(47 downto 40)&data_in(15 downto 8);
     row2 <= data_in(119 downto 112)&data_in(87 downto 80)&data_in(55 downto 48)&data_in(23 downto 16);

@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.CONSTANTS.all;
 
+-- AES core IP manager interface
 entity aes_ip is
 	port (
 		clk: in std_logic;

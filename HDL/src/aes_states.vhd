@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.CONSTANTS.all;
 
+-- All the opcodes used by the AES top cu
 package aes_states is
 	constant IDLE : std_logic_vector(OPCODE_SIZE-1 downto 0) 			:= "000000";
 	constant ALG_SEL: std_logic_vector(OPCODE_SIZE-1 downto 0) 			:= "000010";

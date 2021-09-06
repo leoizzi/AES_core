@@ -86,10 +86,7 @@ architecture behavioral of aes_top_cu is
 
 	constant AES_128_ROUNDS : std_logic_vector(3 downto 0) := "1001";
 	constant AES_192_ROUNDS : std_logic_vector(3 downto 0) := "1011";
-	constant AES_256_ROUNDS : std_logic_vector(3 downto 0) := "1101";
-	--constant DEC_AES_128_ROUNDS : std_logic_vector(3 downto 0) := "1001";
-	--constant DEC_AES_192_ROUNDS : std_logic_vector(3 downto 0) := "1011";
-	--constant DEC_AES_256_ROUNDS : std_logic_vector(3 downto 0) := "1101"; 
+	constant AES_256_ROUNDS : std_logic_vector(3 downto 0) := "1101"; 
 
 	signal curr_state, next_state: std_logic_vector(OPCODE_SIZE-1 downto 0);
 	signal curr_data_reg_en, next_data_reg_en: std_logic_vector(8 downto 0);
@@ -251,14 +248,17 @@ begin
 		end if;
 
 		case(curr_state) is
+			-- Wait for the core to be enabled
 			when IDLE => 
 				if (en = '1' and int_polling = '0') then
 					next_state <= opcode;
 				end if;
 
+				-- make sure to initialize the internal state
 				next_data_reg_en <= (0 => '1', others => '0');
 				rst_int <= '1';
 
+			-- Store the numbers of keys, that is the number of rounds, to execute
 			when ALG_SEL => 
 				buf_en <= '1';
 				if (cpu_write_completed = '1') then
@@ -266,22 +266,28 @@ begin
 					next_state <= WAIT_TR_CLOSE;
 				end if;
 
+			-- Receive a key from the CPU 16 bits at the time
 			when KEY_TRANSFER =>
 			    data_reg_sample <= '1';
 			    buf_en <= '1';
+
+			    -- The entire key has been received
 				if (curr_data_reg_en(8) = '1') then
 					next_state <= KEY_WRITE;
 				end if;
 
+				-- No more keys need to be read
 				if (curr_ram_addr = curr_n_keys) then
 					next_state <= WAIT_TR_CLOSE;
 				end if;
 
+				-- Collect the next 16 bits
 				if (cpu_write_completed = '1') then
 					buf_addr_en <= '1';
 					next_data_reg_en <= curr_data_reg_en(7 downto 0)&curr_data_reg_en(8);
 				end if;
 
+			-- Store a key in the dedicated RAM
 			when KEY_WRITE => 
 			    -- data_reg_sample <= '1';
 				ram_addr <= curr_ram_addr;
@@ -290,6 +296,7 @@ begin
 				next_state <= KEY_TRANSFER;
 				next_data_reg_en <= (0 => '1', others => '0');
 
+			-- Receive the data from the CPU 16 bits at the time
 			when DATA_RX => 
 				buf_en <= '1';
 				if (cpu_write_completed = '1') then
@@ -298,13 +305,19 @@ begin
 					next_data_reg_en <= curr_data_reg_en(7 downto 0)&curr_data_reg_en(8);
 				end if;
 
+				-- No more data has to be read
 				if (curr_data_reg_en(8) = '1') then
 					next_state <= WAIT_TR_CLOSE;
 				end if;
 
+			-- Start the encryption unit and wait for its execution
 			when ENCRYPTION => 
 				start_enc <= '1';
+
+				-- Let the unit CU to drive the RAM
 				ram_addr <= key_idx_enc;
+
+				-- Tell the encryption CU for how many rounds it has to run
 				case (curr_n_keys) is
 					when AES_128_N_KEYS => 
 						n_rounds <= AES_128_ROUNDS;
@@ -324,9 +337,14 @@ begin
 					next_state <= ENC_DATA_TX;
 				end if;
 
+			-- Start the decryption unit and wait for its execution
 			when DECRYPTION => 
 				start_dec <= '1';
+
+				-- Let the unit CU to drive the RAM
 				ram_addr <= key_idx_dec;
+
+				-- Tell the decryption CU for how many rounds it has to run
 				case (curr_n_keys) is
 					when AES_128_N_KEYS => 
 						n_rounds <= AES_128_ROUNDS;
@@ -346,6 +364,7 @@ begin
 					next_state <= DEC_DATA_TX;
 				end if;
 
+			-- Transfer the cyphertext to the Data Buffer
 			when ENC_DATA_TX => 
 				buf_addr_en <= '1';
 				buf_en <= '1';
@@ -382,6 +401,7 @@ begin
 						err <= '1';
 				end case;
 
+			-- Transfer the plaintext to the Data Buffer
 			when DEC_DATA_TX => 
 				buf_addr_en <= '1';
 				buf_en <= '1';
@@ -418,6 +438,7 @@ begin
 						err <= '1';
 				end case;
 
+			-- Unlock the CPU
 			when CORE_DONE => 
 				buf_addr_en <= '1';
 				buf_en <= '1';
@@ -427,6 +448,7 @@ begin
 					next_state <= IDLE;
 				end if;
 
+			-- Wait for a transaction to be closed
 			when WAIT_TR_CLOSE => 
 				if (en = '0') then
 					next_state <= IDLE;

@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+-- Swap the endianness of a 128 bits word 32-bit at the time
 entity be_to_le_converter_32_bit is
 	port (
 		be_data: in std_logic_vector(127 downto 0);
