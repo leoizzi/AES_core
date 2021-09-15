@@ -57,7 +57,6 @@
 #include "se3_sekey.h"
 /* USER CODE BEGIN Includes */
 #include "FPGA.h"
-#include "Fpgaipm.h"
 #include "AES_FPGA.h"
 #include "se3_core.h"
 #include "uart_debug.h"
@@ -181,7 +180,7 @@ int main(void)
 	FPGA_IPM_init();
 
 	PRINT_DBG(huart1, buffer, sizeof(buffer), "FPGA programming\n\r");
-	// B5_FPGA_Programming();
+	B5_FPGA_Programming();
 	HAL_GPIO_WritePin(GPIOG, FPGA_RST_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(GPIOG, FPGA_RST_Pin, GPIO_PIN_RESET);
 
