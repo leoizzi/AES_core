@@ -1,8 +1,4 @@
 #include "AES_FPGA.h"
-#include "uart_debug.h"
-
-static char buffer[128];
-extern UART_HandleTypeDef huart1;
 
 /** \brief Process data using FPGA acceleration. The caller must guarantee that input_text and output_text are both valid 128 bits vectors
  *  \param  128 bits input text.
@@ -77,7 +73,6 @@ static AES_FPGA_RETURN_CODE AES_FPGA_blk_process(uint8_t *input_text, uint8_t *o
 	//Transmit 128-bit data.
 	for (int i=0; i < (B5_AES_BLK_SIZE >> 1); i++){
 		if (FPGA_IPM_write(AES_CORE_ID, WRITE_BASE_ADDR + i, &tx_data[i])) {
-			PRINT_DBG(huart1, buffer, sizeof(buffer), "crash 0\n\r");
 			return FPGA_ERROR;
 		}
 
